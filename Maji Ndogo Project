@@ -1,0 +1,3571 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "b6879d2d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%load_ext sql"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "21dbe56a",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "'Connected: root@md_water_services'"
+      ]
+     },
+     "execution_count": 2,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%sql mysql+pymysql://root:datahub97@localhost:3307/md_water_services"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "498fbbc8",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "10 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "    <thead>\n",
+       "        <tr>\n",
+       "            <th>Tables_in_md_water_services</th>\n",
+       "        </tr>\n",
+       "    </thead>\n",
+       "    <tbody>\n",
+       "        <tr>\n",
+       "            <td>auditor_report</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>data_dictionary</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>employee</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>global_water_access</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>incorrect_records</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>location</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>visits</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>water_quality</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>water_source</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>well_pollution</td>\n",
+       "        </tr>\n",
+       "    </tbody>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "[('auditor_report',),\n",
+       " ('data_dictionary',),\n",
+       " ('employee',),\n",
+       " ('global_water_access',),\n",
+       " ('incorrect_records',),\n",
+       " ('location',),\n",
+       " ('visits',),\n",
+       " ('water_quality',),\n",
+       " ('water_source',),\n",
+       " ('well_pollution',)]"
+      ]
+     },
+     "execution_count": 3,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql\n",
+    "# view table names \n",
+    "SHOW TABLES"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1fd5d3cc",
+   "metadata": {},
+   "source": [
+    "# PHASE 1:\n",
+    "At the heart of this project is the water crisis faced by a fictitious country called Maji Ndogo- It mirrors real-world challenges faced in many places across the globe. In this project, I dove deep into the intricacies using SQL. SQL was used to clean and explore the database with 60,000 records.\n",
+    "\n",
+    "Maji Ndogo is a close-knit community grappling with a severe water shortage. Residents face daily challenges in accessing clean water for essential needs, impacting health, agriculture, and daily life.With support, Maji Ndogo aims to enhance the well-being and prosperity of its residents by securing a reliable and sufficient water supply.\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3d46ec64",
+   "metadata": {},
+   "source": [
+    "## DATA CLEANING\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "2d53ca27",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "5 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "    <thead>\n",
+       "        <tr>\n",
+       "            <th>CONCAT(<br>    (LOWER(REPLACE(employee_name, &#x27; &#x27;,&#x27;.&#x27;))), &#x27;@ndogowater.gov&#x27;)</th>\n",
+       "        </tr>\n",
+       "    </thead>\n",
+       "    <tbody>\n",
+       "        <tr>\n",
+       "            <td>amara.jengo@ndogowater.gov</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>bello.azibo@ndogowater.gov</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>bakari.iniko@ndogowater.gov</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>malachi.mavuso@ndogowater.gov</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>cheche.buhle@ndogowater.gov</td>\n",
+       "        </tr>\n",
+       "    </tbody>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "[('amara.jengo@ndogowater.gov',),\n",
+       " ('bello.azibo@ndogowater.gov',),\n",
+       " ('bakari.iniko@ndogowater.gov',),\n",
+       " ('malachi.mavuso@ndogowater.gov',),\n",
+       " ('cheche.buhle@ndogowater.gov',)]"
+      ]
+     },
+     "execution_count": 4,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql\n",
+    "# create employee email table\n",
+    "# replace the space in employee_name from the employee table with a full stop to create an official email address to the names \n",
+    "SELECT CONCAT(\n",
+    "    (LOWER(REPLACE(employee_name, ' ','.'))), '@ndogowater.gov')\n",
+    "FROM md_water_services.employee\n",
+    "LIMIT 5;"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "0cc73f5a",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "0 rows affected.\n",
+      "56 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "[]"
+      ]
+     },
+     "execution_count": 5,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql\n",
+    "# unlock sql update\n",
+    "SET SQL_SAFE_UPDATES=0;\n",
+    "# update employee table by creating a new column\n",
+    "UPDATE employee\n",
+    "SET email = CONCAT(\n",
+    "    (LOWER(REPLACE(employee_name, ' ','.'))), '@ndogowater.gov');"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "11712803",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "5 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "    <thead>\n",
+       "        <tr>\n",
+       "            <th>LENGTH(phone_number)</th>\n",
+       "        </tr>\n",
+       "    </thead>\n",
+       "    <tbody>\n",
+       "        <tr>\n",
+       "            <td>12</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>12</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>12</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>12</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>12</td>\n",
+       "        </tr>\n",
+       "    </tbody>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "[(12,), (12,), (12,), (12,), (12,)]"
+      ]
+     },
+     "execution_count": 6,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql\n",
+    "# check the phone_numebr on the employee table to ensure that there is no extra space and trim the excess spaces\n",
+    "SELECT\n",
+    "LENGTH(phone_number)\n",
+    "FROM md_water_services.employee\n",
+    "LIMIT 5;"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "5112be6e",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "5 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "    <thead>\n",
+       "        <tr>\n",
+       "            <th>TRIM(LENGTH(phone_number))</th>\n",
+       "        </tr>\n",
+       "    </thead>\n",
+       "    <tbody>\n",
+       "        <tr>\n",
+       "            <td>12</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>12</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>12</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>12</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>12</td>\n",
+       "        </tr>\n",
+       "    </tbody>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "[('12',), ('12',), ('12',), ('12',), ('12',)]"
+      ]
+     },
+     "execution_count": 7,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql\n",
+    "# Trim the excess space on the phone_number column \n",
+    "SELECT\n",
+    "TRIM(LENGTH(phone_number))\n",
+    "FROM md_water_services.employee\n",
+    "LIMIT 5;"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "4ad5db5f",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "56 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "[]"
+      ]
+     },
+     "execution_count": 8,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql\n",
+    "# Update the phone_number on employee table\n",
+    "UPDATE md_water_services.employee\n",
+    "SET phone_number = TRIM(phone_number)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "eed1b7d8",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "5 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "    <thead>\n",
+       "        <tr>\n",
+       "            <th>town_name</th>\n",
+       "            <th>number_of_people</th>\n",
+       "        </tr>\n",
+       "    </thead>\n",
+       "    <tbody>\n",
+       "        <tr>\n",
+       "            <td>Ilanga</td>\n",
+       "            <td>3</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Rural</td>\n",
+       "            <td>29</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Lusaka</td>\n",
+       "            <td>4</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Zanzibar</td>\n",
+       "            <td>4</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Dahabu</td>\n",
+       "            <td>6</td>\n",
+       "        </tr>\n",
+       "    </tbody>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "[('Ilanga', 3), ('Rural', 29), ('Lusaka', 4), ('Zanzibar', 4), ('Dahabu', 6)]"
+      ]
+     },
+     "execution_count": 9,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql\n",
+    "# count how many employees live in each town using the employee table.\n",
+    "SELECT town_name,\n",
+    "    COUNT(employee_name) AS number_of_people\n",
+    "FROM md_water_services.employee\n",
+    "GROUP BY town_name\n",
+    "LIMIT 5;\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "id": "51b4c852",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "3 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "    <thead>\n",
+       "        <tr>\n",
+       "            <th>assigned_employee_id</th>\n",
+       "            <th>number_of_visits</th>\n",
+       "        </tr>\n",
+       "    </thead>\n",
+       "    <tbody>\n",
+       "        <tr>\n",
+       "            <td>1</td>\n",
+       "            <td>3708</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>30</td>\n",
+       "            <td>3676</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>34</td>\n",
+       "            <td>3539</td>\n",
+       "        </tr>\n",
+       "    </tbody>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "[(1, 3708), (30, 3676), (34, 3539)]"
+      ]
+     },
+     "execution_count": 10,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql\n",
+    "# use the vist table to find and arrage the highest number of locations visited.\n",
+    "SELECT assigned_employee_id,\n",
+    "   COUNT(location_id) AS number_of_visits\n",
+    "FROM md_water_services.visits\n",
+    "GROUP BY assigned_employee_id\n",
+    "ORDER BY number_of_visits DESC\n",
+    "LIMIT 3;\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "id": "a9d5e8d8",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "3 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "    <thead>\n",
+       "        <tr>\n",
+       "            <th>province_name</th>\n",
+       "            <th>town_name</th>\n",
+       "            <th>location_type</th>\n",
+       "            <th>records_per_town</th>\n",
+       "            <th>num_of_sources</th>\n",
+       "        </tr>\n",
+       "    </thead>\n",
+       "    <tbody>\n",
+       "        <tr>\n",
+       "            <td>Akatsi</td>\n",
+       "            <td>Kintampo</td>\n",
+       "            <td>Urban</td>\n",
+       "            <td>780</td>\n",
+       "            <td>780</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Akatsi</td>\n",
+       "            <td>Harare</td>\n",
+       "            <td>Urban</td>\n",
+       "            <td>800</td>\n",
+       "            <td>800</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Akatsi</td>\n",
+       "            <td>Lusaka</td>\n",
+       "            <td>Urban</td>\n",
+       "            <td>1070</td>\n",
+       "            <td>1070</td>\n",
+       "        </tr>\n",
+       "    </tbody>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "[('Akatsi', 'Kintampo', 'Urban', 780, 780),\n",
+       " ('Akatsi', 'Harare', 'Urban', 800, 800),\n",
+       " ('Akatsi', 'Lusaka', 'Urban', 1070, 1070)]"
+      ]
+     },
+     "execution_count": 11,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql\n",
+    "# Create a query that counts the number of records per town, province and location\n",
+    "SELECT province_name, town_name, location_type,\n",
+    "    COUNT(town_name) AS records_per_town,\n",
+    "    COUNT(location_type) AS num_of_sources\n",
+    "FROM location\n",
+    "GROUP BY town_name, province_name, location_type\n",
+    "ORDER BY province_name, records_per_town, num_of_sources DESC\n",
+    "LIMIT 3;"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "id": "86582520",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "3 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "    <thead>\n",
+       "        <tr>\n",
+       "            <th>type_of_water_source</th>\n",
+       "            <th>avg_no_people</th>\n",
+       "            <th>population_served</th>\n",
+       "            <th>num_of_water_source_type</th>\n",
+       "        </tr>\n",
+       "    </thead>\n",
+       "    <tbody>\n",
+       "        <tr>\n",
+       "            <td>shared_tap</td>\n",
+       "            <td>2071</td>\n",
+       "            <td>11945272</td>\n",
+       "            <td>5767</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>well</td>\n",
+       "            <td>279</td>\n",
+       "            <td>4841724</td>\n",
+       "            <td>17383</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>tap_in_home</td>\n",
+       "            <td>644</td>\n",
+       "            <td>4678880</td>\n",
+       "            <td>7265</td>\n",
+       "        </tr>\n",
+       "    </tbody>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "[('shared_tap', Decimal('2071'), Decimal('11945272'), 5767),\n",
+       " ('well', Decimal('279'), Decimal('4841724'), 17383),\n",
+       " ('tap_in_home', Decimal('644'), Decimal('4678880'), 7265)]"
+      ]
+     },
+     "execution_count": 12,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql\n",
+    "# count how many of each of the different water source types there are\n",
+    "# look at the number of records for each location type, average number of people that are served by each water source\n",
+    "# and calculate the total number of people served by each type of water source in total\n",
+    "SELECT type_of_water_source, \n",
+    "    ROUND(AVG(number_of_people_served)) AS avg_no_people, \n",
+    "    SUM(number_of_people_served) AS population_served,\n",
+    "    COUNT(type_of_water_source) AS num_of_water_source_type   \n",
+    "FROM water_source\n",
+    "GROUP BY type_of_water_source\n",
+    "ORDER BY population_served DESC\n",
+    "LIMIT 3;"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "id": "ec744726",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "1 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "    <thead>\n",
+       "        <tr>\n",
+       "            <th>num_of_people_surveyed</th>\n",
+       "        </tr>\n",
+       "    </thead>\n",
+       "    <tbody>\n",
+       "        <tr>\n",
+       "            <td>27628140</td>\n",
+       "        </tr>\n",
+       "    </tbody>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "[(Decimal('27628140'),)]"
+      ]
+     },
+     "execution_count": 13,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql\n",
+    "# calculate number of people surveyed\n",
+    "SELECT\n",
+    "    SUM(number_of_people_served) AS num_of_people_surveyed \n",
+    "FROM water_source;"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "id": "5dd9efd3",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "5 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "    <thead>\n",
+       "        <tr>\n",
+       "            <th>type_of_water_source</th>\n",
+       "            <th>percent_of_people_served</th>\n",
+       "        </tr>\n",
+       "    </thead>\n",
+       "    <tbody>\n",
+       "        <tr>\n",
+       "            <td>shared_tap</td>\n",
+       "            <td>43</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>well</td>\n",
+       "            <td>18</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>tap_in_home</td>\n",
+       "            <td>17</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>tap_in_home_broken</td>\n",
+       "            <td>14</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>river</td>\n",
+       "            <td>9</td>\n",
+       "        </tr>\n",
+       "    </tbody>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "[('shared_tap', Decimal('43')),\n",
+       " ('well', Decimal('18')),\n",
+       " ('tap_in_home', Decimal('17')),\n",
+       " ('tap_in_home_broken', Decimal('14')),\n",
+       " ('river', Decimal('9'))]"
+      ]
+     },
+     "execution_count": 14,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql\n",
+    "# percentage number of people served by each water source\n",
+    "SELECT type_of_water_source,\n",
+    "    ROUND(\n",
+    "    (SUM(number_of_people_served) / \n",
+    "#          A subquery that gets the total number of people in Maji Ndogo\n",
+    "    (SELECT\n",
+    "        SUM(number_of_people_served) \n",
+    "    FROM water_source))*100, 0) percent_of_people_served\n",
+    "FROM water_source\n",
+    "GROUP BY type_of_water_source\n",
+    "ORDER BY percent_of_people_served DESC;\n",
+    "    "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "id": "d87ab1bd",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "4 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "    <thead>\n",
+       "        <tr>\n",
+       "            <th>type_of_water_source</th>\n",
+       "            <th>total_population_served</th>\n",
+       "            <th>rank_by_popation</th>\n",
+       "        </tr>\n",
+       "    </thead>\n",
+       "    <tbody>\n",
+       "        <tr>\n",
+       "            <td>river</td>\n",
+       "            <td>2362544</td>\n",
+       "            <td>1</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>tap_in_home_broken</td>\n",
+       "            <td>3799720</td>\n",
+       "            <td>2</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>well</td>\n",
+       "            <td>4841724</td>\n",
+       "            <td>3</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>shared_tap</td>\n",
+       "            <td>11945272</td>\n",
+       "            <td>4</td>\n",
+       "        </tr>\n",
+       "    </tbody>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "[('river', Decimal('2362544'), 1),\n",
+       " ('tap_in_home_broken', Decimal('3799720'), 2),\n",
+       " ('well', Decimal('4841724'), 3),\n",
+       " ('shared_tap', Decimal('11945272'), 4)]"
+      ]
+     },
+     "execution_count": 15,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql\n",
+    "# # total number of people served by each water source.\n",
+    "# This query gives insight to which water source serve for the most people and \n",
+    "# should be given priority.\n",
+    "SELECT \n",
+    "    w.type_of_water_source, \n",
+    "    w.total_population_served,\n",
+    "    RANK() OVER (ORDER BY w.total_population_served) AS rank_by_popation\n",
+    "FROM(\n",
+    "    SELECT\n",
+    "        type_of_water_source,\n",
+    "        SUM(number_of_people_served) AS total_population_served\n",
+    "    FROM water_source\n",
+    "    WHERE type_of_water_source NOT IN('tap_in_home')\n",
+    "    GROUP BY type_of_water_source) AS w;"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "id": "8c343028",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "3 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "    <thead>\n",
+       "        <tr>\n",
+       "            <th>source_id</th>\n",
+       "            <th>type_of_water_source</th>\n",
+       "            <th>number_of_people_served</th>\n",
+       "            <th>priority_rank</th>\n",
+       "        </tr>\n",
+       "    </thead>\n",
+       "    <tbody>\n",
+       "        <tr>\n",
+       "            <td>SoRu34798224</td>\n",
+       "            <td>river</td>\n",
+       "            <td>998</td>\n",
+       "            <td>1</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>SoRu35837224</td>\n",
+       "            <td>river</td>\n",
+       "            <td>998</td>\n",
+       "            <td>1</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>SoRu36238224</td>\n",
+       "            <td>river</td>\n",
+       "            <td>998</td>\n",
+       "            <td>1</td>\n",
+       "        </tr>\n",
+       "    </tbody>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "[('SoRu34798224', 'river', 998, 1),\n",
+       " ('SoRu35837224', 'river', 998, 1),\n",
+       " ('SoRu36238224', 'river', 998, 1)]"
+      ]
+     },
+     "execution_count": 16,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql\n",
+    "# Using the windows rank function to show areas of priority. The query drills down to each water source.\n",
+    "# The query gives engineers insight into which water sources to be repaired first (prioritize). For example:\n",
+    "# which of the rivers, well or shared_taps to be repaired first, this will be the ones that serve more people. */\n",
+    "SELECT\n",
+    "    source_id,\n",
+    "    type_of_water_source,\n",
+    "    number_of_people_served,\n",
+    "    RANK() OVER (\n",
+    "        PARTITION BY type_of_water_source\n",
+    "        ORDER BY number_of_people_served DESC\n",
+    "    ) AS priority_rank\n",
+    "FROM\n",
+    "    water_source\n",
+    "WHERE\n",
+    "    type_of_water_source <> \"tap_in_home\"\n",
+    "LIMIT 3;"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "id": "f6fc9f5c",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "1 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "    <thead>\n",
+       "        <tr>\n",
+       "            <th>start_date</th>\n",
+       "            <th>end_date</th>\n",
+       "            <th>survey_period</th>\n",
+       "        </tr>\n",
+       "    </thead>\n",
+       "    <tbody>\n",
+       "        <tr>\n",
+       "            <td>2023-07-14</td>\n",
+       "            <td>2021-01-01</td>\n",
+       "            <td>924</td>\n",
+       "        </tr>\n",
+       "    </tbody>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "[(datetime.date(2023, 7, 14), datetime.date(2021, 1, 1), 924)]"
+      ]
+     },
+     "execution_count": 17,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql \n",
+    "# How long the survey took\n",
+    "SELECT \n",
+    "\tMAX(DATE(time_of_record)) start_date,\n",
+    "    MIN(DATE(time_of_record)) end_date,\n",
+    "    DATEDIFF(MAX(DATE(time_of_record)), \n",
+    "    MIN(DATE(time_of_record))) survey_period\n",
+    "FROM\n",
+    "\tvisits;"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "id": "754c91ae",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "1 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "    <thead>\n",
+       "        <tr>\n",
+       "            <th>avg_time_in_queue</th>\n",
+       "        </tr>\n",
+       "    </thead>\n",
+       "    <tbody>\n",
+       "        <tr>\n",
+       "            <td>123</td>\n",
+       "        </tr>\n",
+       "    </tbody>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "[(Decimal('123'),)]"
+      ]
+     },
+     "execution_count": 18,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql\n",
+    "# Average time in queue to get water\n",
+    "SELECT\n",
+    "    ROUND(AVG(time_in_queue),0) avg_time_in_queue\n",
+    "FROM visits\n",
+    "#  Excluding time in queue for value = 0\n",
+    "WHERE\n",
+    "    NULLIF(time_in_queue, 0);"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 19,
+   "id": "b09cf488",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "7 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "    <thead>\n",
+       "        <tr>\n",
+       "            <th>Days_of_the_week</th>\n",
+       "            <th>avg_time_in_queue_per_day</th>\n",
+       "        </tr>\n",
+       "    </thead>\n",
+       "    <tbody>\n",
+       "        <tr>\n",
+       "            <td>Saturday</td>\n",
+       "            <td>246</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Monday</td>\n",
+       "            <td>137</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Friday</td>\n",
+       "            <td>120</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Tuesday</td>\n",
+       "            <td>108</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Thursday</td>\n",
+       "            <td>105</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Wednesday</td>\n",
+       "            <td>97</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Sunday</td>\n",
+       "            <td>82</td>\n",
+       "        </tr>\n",
+       "    </tbody>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "[('Saturday', Decimal('246')),\n",
+       " ('Monday', Decimal('137')),\n",
+       " ('Friday', Decimal('120')),\n",
+       " ('Tuesday', Decimal('108')),\n",
+       " ('Thursday', Decimal('105')),\n",
+       " ('Wednesday', Decimal('97')),\n",
+       " ('Sunday', Decimal('82'))]"
+      ]
+     },
+     "execution_count": 19,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql\n",
+    "# Average time in queue per day of the week to get water.\n",
+    "# The query shows the busiest day to get water in maji ndogo*/\n",
+    "SELECT\n",
+    "    DAYNAME(time_of_record) Days_of_the_week,\n",
+    "    ROUND(AVG(time_in_queue),0) avg_time_in_queue_per_day\n",
+    "FROM visits\n",
+    "#  Excluding time in queue for value = 0\n",
+    "WHERE\n",
+    "    NULLIF(time_in_queue, 0)\n",
+    "GROUP BY Days_of_the_week\n",
+    "    \n",
+    "ORDER BY avg_time_in_queue_per_day DESC;\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 20,
+   "id": "7a1bc41d",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "5 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "    <thead>\n",
+       "        <tr>\n",
+       "            <th>Hour_of_the_day</th>\n",
+       "            <th>avg_time_per_hour_of_day</th>\n",
+       "        </tr>\n",
+       "    </thead>\n",
+       "    <tbody>\n",
+       "        <tr>\n",
+       "            <td>19:00</td>\n",
+       "            <td>168</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>17:00</td>\n",
+       "            <td>149</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>07:00</td>\n",
+       "            <td>149</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>06:00</td>\n",
+       "            <td>149</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>08:00</td>\n",
+       "            <td>149</td>\n",
+       "        </tr>\n",
+       "    </tbody>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "[('19:00', Decimal('168')),\n",
+       " ('17:00', Decimal('149')),\n",
+       " ('07:00', Decimal('149')),\n",
+       " ('06:00', Decimal('149')),\n",
+       " ('08:00', Decimal('149'))]"
+      ]
+     },
+     "execution_count": 20,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql\n",
+    "# Average time in queue per hour of day to get water.\n",
+    "# The query gives insight on the busiest time to get water in maji ndogo\n",
+    "SELECT\n",
+    "    TIME_FORMAT(TIME(time_of_record), \"%H:00\") Hour_of_the_day,\n",
+    "    ROUND(AVG(time_in_queue),0) avg_time_per_hour_of_day\n",
+    "FROM visits\n",
+    "#  Excluding time in queue for value = 0\n",
+    "WHERE NULLIF(time_in_queue, 0)\n",
+    "GROUP BY Hour_of_the_day\n",
+    "ORDER BY avg_time_per_hour_of_day DESC\n",
+    "LIMIT 5;\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 21,
+   "id": "16dd1063",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "5 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "    <thead>\n",
+       "        <tr>\n",
+       "            <th>hour_of_day</th>\n",
+       "            <th>Sunday</th>\n",
+       "            <th>Monday</th>\n",
+       "            <th>Tuesday</th>\n",
+       "            <th>Wednesday</th>\n",
+       "            <th>Thursday</th>\n",
+       "            <th>Friday</th>\n",
+       "            <th>Saturday</th>\n",
+       "        </tr>\n",
+       "    </thead>\n",
+       "    <tbody>\n",
+       "        <tr>\n",
+       "            <td>06:00</td>\n",
+       "            <td>79</td>\n",
+       "            <td>190</td>\n",
+       "            <td>134</td>\n",
+       "            <td>112</td>\n",
+       "            <td>134</td>\n",
+       "            <td>153</td>\n",
+       "            <td>247</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>07:00</td>\n",
+       "            <td>82</td>\n",
+       "            <td>186</td>\n",
+       "            <td>128</td>\n",
+       "            <td>111</td>\n",
+       "            <td>139</td>\n",
+       "            <td>156</td>\n",
+       "            <td>247</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>08:00</td>\n",
+       "            <td>86</td>\n",
+       "            <td>183</td>\n",
+       "            <td>130</td>\n",
+       "            <td>119</td>\n",
+       "            <td>129</td>\n",
+       "            <td>153</td>\n",
+       "            <td>247</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>09:00</td>\n",
+       "            <td>84</td>\n",
+       "            <td>127</td>\n",
+       "            <td>105</td>\n",
+       "            <td>94</td>\n",
+       "            <td>99</td>\n",
+       "            <td>107</td>\n",
+       "            <td>252</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>10:00</td>\n",
+       "            <td>83</td>\n",
+       "            <td>119</td>\n",
+       "            <td>99</td>\n",
+       "            <td>89</td>\n",
+       "            <td>95</td>\n",
+       "            <td>112</td>\n",
+       "            <td>259</td>\n",
+       "        </tr>\n",
+       "    </tbody>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "[('06:00', Decimal('79'), Decimal('190'), Decimal('134'), Decimal('112'), Decimal('134'), Decimal('153'), Decimal('247')),\n",
+       " ('07:00', Decimal('82'), Decimal('186'), Decimal('128'), Decimal('111'), Decimal('139'), Decimal('156'), Decimal('247')),\n",
+       " ('08:00', Decimal('86'), Decimal('183'), Decimal('130'), Decimal('119'), Decimal('129'), Decimal('153'), Decimal('247')),\n",
+       " ('09:00', Decimal('84'), Decimal('127'), Decimal('105'), Decimal('94'), Decimal('99'), Decimal('107'), Decimal('252')),\n",
+       " ('10:00', Decimal('83'), Decimal('119'), Decimal('99'), Decimal('89'), Decimal('95'), Decimal('112'), Decimal('259'))]"
+      ]
+     },
+     "execution_count": 21,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql\n",
+    "# Average time in queue per hour of day to get water.\n",
+    "# This query creates a pivot table using case statement on the average time in queue in hours per day of the week.\n",
+    "# This is done in order to give insights into busiest days of the week and drill down into hours of the day*/\n",
+    "\n",
+    "SELECT\n",
+    "    TIME_FORMAT(TIME(time_of_record), '%H:00') AS hour_of_day,\n",
+    "ROUND(AVG(\n",
+    "        CASE WHEN DAYNAME(time_of_record) = 'Sunday' THEN time_in_queue\n",
+    "    ELSE NULL\n",
+    "END),0) AS Sunday,\n",
+    "\n",
+    "ROUND(AVG(\n",
+    "    CASE WHEN DAYNAME(time_of_record) = \"Monday\" THEN time_in_queue\n",
+    "    ELSE NULL\n",
+    "END), 0) AS Monday,\n",
+    "\n",
+    "ROUND(AVG(\n",
+    "    CASE WHEN DAYNAME(time_of_record) = \"Tuesday\" THEN time_in_queue\n",
+    "    ELSE NULL\n",
+    "END),0) AS Tuesday,\n",
+    "\n",
+    "ROUND(AVG(\n",
+    "    CASE WHEN DAYNAME(time_of_record) = \"Wednesday\" THEN time_in_queue\n",
+    "        ELSE NULL\n",
+    "END),0) AS Wednesday,\n",
+    "\n",
+    "ROUND(AVG(\n",
+    "    CASE WHEN DAYNAME(time_of_record) = \"Thursday\" THEN time_in_queue\n",
+    "        ELSE NULL\n",
+    "END),0) AS Thursday,\n",
+    "\n",
+    "ROUND(AVG(\n",
+    "    CASE WHEN DAYNAME(time_of_record) = \"Friday\" THEN time_in_queue\n",
+    "        ELSE NULL\n",
+    "END),0) AS Friday,\n",
+    "\n",
+    "ROUND(AVG(\n",
+    "    CASE WHEN DAYNAME(time_of_record) = \"Saturday\" THEN time_in_queue\n",
+    "        ELSE NULL\n",
+    "END),0) AS Saturday\n",
+    "FROM visits\n",
+    "WHERE time_in_queue != 0\n",
+    "GROUP BY hour_of_day\n",
+    "ORDER BY hour_of_day ASC\n",
+    "LIMIT 5;"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "816ae804",
+   "metadata": {},
+   "source": [
+    "# PHASE 2: Weaving the data threads of Maji Ndogo's narrative\n",
+    "It looks like we have 1620 records, or sites that they re-visited. I see a location_id, type of water source at that location, and the quality score of the water source, that is now independently measured. Our auditor also investigated each site a bit by speaking to a few locals. Their statements are also captured in his results.\n",
+    "\n",
+    "We need to tackle a couple of questions here.\n",
+    "\n",
+    "Is there a difference in the scores?\n",
+    "If so, are there patterns?"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "af704832",
+   "metadata": {},
+   "source": [
+    "## ERD in MySql\n",
+    "\n",
+    "This is the auditor's report, so we need to compare their results to ours.\n",
+    "\n",
+    "To integrate the auditor's report, we will need to access many of the tables in the database, so it is important to understand the database structure. To do this we really need to understand the relationships first, so we know where to pull information from.\n",
+    "\n",
+    "\n",
+    "### Note:\n",
+    "The visits table is the central table. location_id, source_id and assigned_employee_id are primary keys in their respective tables, but are all foreign keys in visits. These are mostly dsone-to-many relationships. Let's think some of these through so we are sure this is correct.\n",
+    "\n",
+    "\n",
+    "The visits table logs all the times we've been to different places, and we can see that some locations have been visited multiple times. On the other hand, the location table has all the specifics about each place we've been but it only includes each location once. So, it's a one-to-many relationship: for each unique location in the location table, there might be many corresponding records in the visits table detailing all the different times we went there.\n",
+    "\n",
+    "\n",
+    "Let's look at the relationship between the visits and water_quality tables. For every entry in the visits table, there should be one unique corresponding record in the water_quality table. This means each visit recorded is associated with a specific water quality score, ensuring a one-to-one relationship between the visits and water_quality tables.\n",
+    "\n",
+    "\n",
+    "But if we look at the ERD, it shows a many-to-one relationship. This does not agree with our thinking. Errors like these can cause problems, so let's fix that.\n",
+    "\n",
+    "\n",
+    "We should normally be careful making a change like this. First you should check that record_id is unique for both tables, and are indeed one-to-one but I did that."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 28,
+   "id": "51095282",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "3 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "    <thead>\n",
+       "        <tr>\n",
+       "            <th>location_id</th>\n",
+       "            <th>true_water_source_score</th>\n",
+       "        </tr>\n",
+       "    </thead>\n",
+       "    <tbody>\n",
+       "        <tr>\n",
+       "            <td>SoRu34980</td>\n",
+       "            <td>1</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>AkRu08112</td>\n",
+       "            <td>3</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>AkLu02044</td>\n",
+       "            <td>0</td>\n",
+       "        </tr>\n",
+       "    </tbody>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "[('SoRu34980', 1), ('AkRu08112', 3), ('AkLu02044', 0)]"
+      ]
+     },
+     "execution_count": 28,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql\n",
+    "# The following query results in 2,698 rows of data being retrieved, \n",
+    "# but the auditor_report table only has 1,620 rows. \n",
+    "# Analyse the query and select the reason why this discrepancy occurs. \n",
+    "\n",
+    "SELECT location_id, true_water_source_score\n",
+    "FROM auditor_report\n",
+    "LIMIT 3;"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 30,
+   "id": "9fd16cbd",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "5 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "    <thead>\n",
+       "        <tr>\n",
+       "            <th>audit_location</th>\n",
+       "            <th>true_water_source_score</th>\n",
+       "            <th>visit_location</th>\n",
+       "            <th>record_id</th>\n",
+       "        </tr>\n",
+       "    </thead>\n",
+       "    <tbody>\n",
+       "        <tr>\n",
+       "            <td>SoRu34980</td>\n",
+       "            <td>1</td>\n",
+       "            <td>SoRu34980</td>\n",
+       "            <td>5185</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>AkRu08112</td>\n",
+       "            <td>3</td>\n",
+       "            <td>AkRu08112</td>\n",
+       "            <td>59367</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>AkLu02044</td>\n",
+       "            <td>0</td>\n",
+       "            <td>AkLu02044</td>\n",
+       "            <td>37379</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>AkHa00421</td>\n",
+       "            <td>3</td>\n",
+       "            <td>AkHa00421</td>\n",
+       "            <td>51627</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>SoRu35221</td>\n",
+       "            <td>0</td>\n",
+       "            <td>SoRu35221</td>\n",
+       "            <td>28758</td>\n",
+       "        </tr>\n",
+       "    </tbody>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "[('SoRu34980', 1, 'SoRu34980', 5185),\n",
+       " ('AkRu08112', 3, 'AkRu08112', 59367),\n",
+       " ('AkLu02044', 0, 'AkLu02044', 37379),\n",
+       " ('AkHa00421', 3, 'AkHa00421', 51627),\n",
+       " ('SoRu35221', 0, 'SoRu35221', 28758)]"
+      ]
+     },
+     "execution_count": 30,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql\n",
+    "# Join the visits table to the auditor_report table. Make sure to grab subjective_quality_score, record_id and location_id\n",
+    "\n",
+    "SELECT\n",
+    "    auditor_report.location_id AS audit_location,\n",
+    "    auditor_report.true_water_source_score,\n",
+    "    visits.location_id AS visit_location,\n",
+    "    visits.record_id\n",
+    "FROM\n",
+    "    auditor_report\n",
+    "JOIN\n",
+    "    visits\n",
+    "    ON auditor_report.location_id = visits.location_id\n",
+    "LIMIT 5;"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 32,
+   "id": "dc514dee",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "5 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "    <thead>\n",
+       "        <tr>\n",
+       "            <th>audit_location</th>\n",
+       "            <th>true_water_source_score</th>\n",
+       "            <th>visit_location</th>\n",
+       "            <th>subjective_quality_score</th>\n",
+       "            <th>record_id</th>\n",
+       "        </tr>\n",
+       "    </thead>\n",
+       "    <tbody>\n",
+       "        <tr>\n",
+       "            <td>SoRu34980</td>\n",
+       "            <td>1</td>\n",
+       "            <td>SoRu34980</td>\n",
+       "            <td>1</td>\n",
+       "            <td>5185</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>AkRu08112</td>\n",
+       "            <td>3</td>\n",
+       "            <td>AkRu08112</td>\n",
+       "            <td>3</td>\n",
+       "            <td>59367</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>AkLu02044</td>\n",
+       "            <td>0</td>\n",
+       "            <td>AkLu02044</td>\n",
+       "            <td>0</td>\n",
+       "            <td>37379</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>AkHa00421</td>\n",
+       "            <td>3</td>\n",
+       "            <td>AkHa00421</td>\n",
+       "            <td>3</td>\n",
+       "            <td>51627</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>SoRu35221</td>\n",
+       "            <td>0</td>\n",
+       "            <td>SoRu35221</td>\n",
+       "            <td>0</td>\n",
+       "            <td>28758</td>\n",
+       "        </tr>\n",
+       "    </tbody>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "[('SoRu34980', 1, 'SoRu34980', 1, 5185),\n",
+       " ('AkRu08112', 3, 'AkRu08112', 3, 59367),\n",
+       " ('AkLu02044', 0, 'AkLu02044', 0, 37379),\n",
+       " ('AkHa00421', 3, 'AkHa00421', 3, 51627),\n",
+       " ('SoRu35221', 0, 'SoRu35221', 0, 28758)]"
+      ]
+     },
+     "execution_count": 32,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql\n",
+    "# Retrieve the corresponding scores from the water_quality table. JOIN the visits table and the water_quality \n",
+    "# table, using the record_id as the connecting key to show subjective_quality_score.\n",
+    "\n",
+    "WITH WaterQualityScores AS (\n",
+    "    SELECT\n",
+    "        v.record_id,\n",
+    "        w.subjective_quality_score\n",
+    "    FROM\n",
+    "        visits AS v\n",
+    "    JOIN\n",
+    "        water_quality AS w\n",
+    "    ON\n",
+    "        v.record_id = w.record_id\n",
+    ")\n",
+    "\n",
+    "SELECT\n",
+    "    a.location_id AS audit_location,\n",
+    "    a.true_water_source_score,\n",
+    "    v.location_id AS visit_location,\n",
+    "    wqs.subjective_quality_score,\n",
+    "    v.record_id\n",
+    "FROM\n",
+    "    auditor_report AS a\n",
+    "JOIN\n",
+    "    visits AS v\n",
+    "    ON a.location_id = v.location_id\n",
+    "LEFT JOIN\n",
+    "    WaterQualityScores AS wqs\n",
+    "    ON v.record_id = wqs.record_id\n",
+    "LIMIT 5;"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "64b54c12",
+   "metadata": {},
+   "source": [
+    "It doesn't matter if your columns are in a different format, because we are about to clean this up a bit. We can drop one of the location_id columns since it is a duplicate. Leave record_id and rename the scores to surveyor_score and auditor_score to make it clear which scores we're looking at in the results set. \n",
+    "\n",
+    "Since were joining 1620 rows of data, we want to keep track of the number of rows we get each time we run a query. We can either set the maximum number of rows we want from \"Limit to 1000 rows\" to a larger number like 10000, or we can force SQL to give us all of the results, using LIMIT 10000.\n",
+    "\n",
+    "Ok, let's analyse! A good starting point is to check if the auditor's and exployees' scores agree. There are many ways to do it. We can have a WHERE clause and check if surveyor_score = auditor_score, or we can subtract the two scores and check if the result is 0."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 36,
+   "id": "fea58b7a",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "5 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "    <thead>\n",
+       "        <tr>\n",
+       "            <th>location_id</th>\n",
+       "            <th>record_id</th>\n",
+       "            <th>auditor_score</th>\n",
+       "            <th>employee_score</th>\n",
+       "        </tr>\n",
+       "    </thead>\n",
+       "    <tbody>\n",
+       "        <tr>\n",
+       "            <td>SoRu34980</td>\n",
+       "            <td>5185</td>\n",
+       "            <td>1</td>\n",
+       "            <td>1</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>AkRu08112</td>\n",
+       "            <td>59367</td>\n",
+       "            <td>3</td>\n",
+       "            <td>3</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>AkLu02044</td>\n",
+       "            <td>37379</td>\n",
+       "            <td>0</td>\n",
+       "            <td>0</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>AkHa00421</td>\n",
+       "            <td>51627</td>\n",
+       "            <td>3</td>\n",
+       "            <td>3</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>SoRu35221</td>\n",
+       "            <td>28758</td>\n",
+       "            <td>0</td>\n",
+       "            <td>0</td>\n",
+       "        </tr>\n",
+       "    </tbody>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "[('SoRu34980', 5185, 1, 1),\n",
+       " ('AkRu08112', 59367, 3, 3),\n",
+       " ('AkLu02044', 37379, 0, 0),\n",
+       " ('AkHa00421', 51627, 3, 3),\n",
+       " ('SoRu35221', 28758, 0, 0)]"
+      ]
+     },
+     "execution_count": 36,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql\n",
+    "\n",
+    "SELECT\n",
+    "    a.location_id AS location_id,\n",
+    "    v.record_id AS record_id,\n",
+    "    a.true_water_source_score AS auditor_score,\n",
+    "    w.subjective_quality_score AS employee_score\n",
+    "FROM\n",
+    "    auditor_report AS a\n",
+    "JOIN\n",
+    "    visits AS v\n",
+    "    ON a.location_id = v.location_id\n",
+    "LEFT JOIN\n",
+    "    water_quality AS w\n",
+    "    ON v.record_id = w.record_id\n",
+    "WHERE a.true_water_source_score = w.subjective_quality_score\n",
+    "LIMIT 5;"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "569c5b09",
+   "metadata": {},
+   "source": [
+    "We have 2505 rows and some of the locations were visited multiple times, so these records are duplicated here. To fix it, we set visits.visit_count = 1 in the WHERE clause. Make sure you reference the alias you used for visits in the join.\n",
+    "\n",
+    "With the duplicates removed I now get 1518. What does this mean considering the auditor visited 1620 sites?\n",
+    "\n",
+    "I think that is an excellent result. 1518/1620 = 94% of the records the auditor checked were correct\n",
+    "\n",
+    "But that means that 102 records are incorrect. So let's look at those. You can do it by adding one character in the last query!"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 40,
+   "id": "c4b6b89f",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "5 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "    <thead>\n",
+       "        <tr>\n",
+       "            <th>location_id</th>\n",
+       "            <th>record_id</th>\n",
+       "            <th>auditor_score</th>\n",
+       "            <th>employee_score</th>\n",
+       "        </tr>\n",
+       "    </thead>\n",
+       "    <tbody>\n",
+       "        <tr>\n",
+       "            <td>AkRu05215</td>\n",
+       "            <td>21160</td>\n",
+       "            <td>3</td>\n",
+       "            <td>10</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>KiRu29290</td>\n",
+       "            <td>7938</td>\n",
+       "            <td>3</td>\n",
+       "            <td>10</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>KiHa22748</td>\n",
+       "            <td>43140</td>\n",
+       "            <td>9</td>\n",
+       "            <td>10</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>SoRu37841</td>\n",
+       "            <td>18495</td>\n",
+       "            <td>6</td>\n",
+       "            <td>10</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>KiRu27884</td>\n",
+       "            <td>33931</td>\n",
+       "            <td>1</td>\n",
+       "            <td>10</td>\n",
+       "        </tr>\n",
+       "    </tbody>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "[('AkRu05215', 21160, 3, 10),\n",
+       " ('KiRu29290', 7938, 3, 10),\n",
+       " ('KiHa22748', 43140, 9, 10),\n",
+       " ('SoRu37841', 18495, 6, 10),\n",
+       " ('KiRu27884', 33931, 1, 10)]"
+      ]
+     },
+     "execution_count": 40,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql\n",
+    "\n",
+    "SELECT\n",
+    "    a.location_id AS location_id,\n",
+    "    v.record_id AS record_id,\n",
+    "    a.true_water_source_score AS auditor_score,\n",
+    "    w.subjective_quality_score AS employee_score\n",
+    "FROM\n",
+    "    auditor_report AS a\n",
+    "JOIN\n",
+    "    visits AS v\n",
+    "    ON a.location_id = v.location_id\n",
+    "LEFT JOIN\n",
+    "    water_quality AS w\n",
+    "    ON v.record_id = w.record_id\n",
+    "WHERE\n",
+    "    (a.true_water_source_score = w.subjective_quality_score OR v.visit_count = 1)\n",
+    "    AND a.true_water_source_score <> w.subjective_quality_score\n",
+    "LIMIT 5;"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9bd18601",
+   "metadata": {},
+   "source": [
+    "Since we used some of this data in our previous analyses, we need to make sure those results are still valid, now we know some of them are incorrect. We didn't use the scores that much, but we relied a lot on the type_of_water_source, so let's check if there are any errors there.\n",
+    "\n",
+    "So, to do this, we need to grab the type_of_water_source column from the water_source table and call it survey_source, using the source_id column to JOIN. Also select the type_of_water_source from the auditor_report table, and call it auditor_source."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 41,
+   "id": "8ddedc3f",
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "5 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "    <thead>\n",
+       "        <tr>\n",
+       "            <th>record_id</th>\n",
+       "            <th>location_id</th>\n",
+       "            <th>employee_score</th>\n",
+       "            <th>auditor_score</th>\n",
+       "            <th>survey_source</th>\n",
+       "            <th>auditor_source</th>\n",
+       "        </tr>\n",
+       "    </thead>\n",
+       "    <tbody>\n",
+       "        <tr>\n",
+       "            <td>21160</td>\n",
+       "            <td>AkRu05215</td>\n",
+       "            <td>10</td>\n",
+       "            <td>3</td>\n",
+       "            <td>well</td>\n",
+       "            <td>well</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>7938</td>\n",
+       "            <td>KiRu29290</td>\n",
+       "            <td>10</td>\n",
+       "            <td>3</td>\n",
+       "            <td>shared_tap</td>\n",
+       "            <td>shared_tap</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>43140</td>\n",
+       "            <td>KiHa22748</td>\n",
+       "            <td>10</td>\n",
+       "            <td>9</td>\n",
+       "            <td>tap_in_home_broken</td>\n",
+       "            <td>tap_in_home_broken</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>18495</td>\n",
+       "            <td>SoRu37841</td>\n",
+       "            <td>10</td>\n",
+       "            <td>6</td>\n",
+       "            <td>shared_tap</td>\n",
+       "            <td>shared_tap</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>33931</td>\n",
+       "            <td>KiRu27884</td>\n",
+       "            <td>10</td>\n",
+       "            <td>1</td>\n",
+       "            <td>well</td>\n",
+       "            <td>well</td>\n",
+       "        </tr>\n",
+       "    </tbody>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "[(21160, 'AkRu05215', 10, 3, 'well', 'well'),\n",
+       " (7938, 'KiRu29290', 10, 3, 'shared_tap', 'shared_tap'),\n",
+       " (43140, 'KiHa22748', 10, 9, 'tap_in_home_broken', 'tap_in_home_broken'),\n",
+       " (18495, 'SoRu37841', 10, 6, 'shared_tap', 'shared_tap'),\n",
+       " (33931, 'KiRu27884', 10, 1, 'well', 'well')]"
+      ]
+     },
+     "execution_count": 41,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql\n",
+    "\n",
+    "SELECT\n",
+    "    v.record_id AS record_id,\n",
+    "    a.location_id AS location_id,\n",
+    "    w.subjective_quality_score AS employee_score,\n",
+    "    a.true_water_source_score AS auditor_score,\n",
+    "    ws.type_of_water_source AS survey_source,\n",
+    "    a.type_of_water_source AS auditor_source\n",
+    "FROM\n",
+    "    visits AS v\n",
+    "JOIN\n",
+    "    water_source AS ws\n",
+    "    ON v.source_id = ws.source_id\n",
+    "JOIN\n",
+    "    auditor_report AS a\n",
+    "    ON a.location_id = v.location_id\n",
+    "LEFT JOIN\n",
+    "    water_quality AS w\n",
+    "    ON v.record_id = w.record_id\n",
+    "WHERE\n",
+    "    (a.true_water_source_score = w.subjective_quality_score OR v.visit_count = 1)\n",
+    "    AND a.true_water_source_score <> w.subjective_quality_score\n",
+    "LIMIT 5;"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "849e6a7e",
+   "metadata": {},
+   "source": [
+    "The types of sources look the same so even though the scores are wrong, the integrity of the type_of_water_source data we analysed last time is not affected.\n",
+    "\n",
+    "Once you're done, remove the columns and JOIN statement for water_sources again."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 42,
+   "id": "2de8e10b",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "5 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "    <thead>\n",
+       "        <tr>\n",
+       "            <th>location_id</th>\n",
+       "            <th>record_id</th>\n",
+       "            <th>auditor_score</th>\n",
+       "            <th>employee_score</th>\n",
+       "        </tr>\n",
+       "    </thead>\n",
+       "    <tbody>\n",
+       "        <tr>\n",
+       "            <td>AkRu05215</td>\n",
+       "            <td>21160</td>\n",
+       "            <td>3</td>\n",
+       "            <td>10</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>KiRu29290</td>\n",
+       "            <td>7938</td>\n",
+       "            <td>3</td>\n",
+       "            <td>10</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>KiHa22748</td>\n",
+       "            <td>43140</td>\n",
+       "            <td>9</td>\n",
+       "            <td>10</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>SoRu37841</td>\n",
+       "            <td>18495</td>\n",
+       "            <td>6</td>\n",
+       "            <td>10</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>KiRu27884</td>\n",
+       "            <td>33931</td>\n",
+       "            <td>1</td>\n",
+       "            <td>10</td>\n",
+       "        </tr>\n",
+       "    </tbody>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "[('AkRu05215', 21160, 3, 10),\n",
+       " ('KiRu29290', 7938, 3, 10),\n",
+       " ('KiHa22748', 43140, 9, 10),\n",
+       " ('SoRu37841', 18495, 6, 10),\n",
+       " ('KiRu27884', 33931, 1, 10)]"
+      ]
+     },
+     "execution_count": 42,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql\n",
+    "# remove the columns and JOIN statement for water_sources again.\n",
+    "SELECT\n",
+    "    a.location_id AS location_id,\n",
+    "    v.record_id AS record_id,\n",
+    "    a.true_water_source_score AS auditor_score,\n",
+    "    w.subjective_quality_score AS employee_score\n",
+    "FROM\n",
+    "    auditor_report AS a\n",
+    "JOIN\n",
+    "    visits AS v\n",
+    "    ON a.location_id = v.location_id\n",
+    "LEFT JOIN\n",
+    "    water_quality AS w\n",
+    "    ON v.record_id = w.record_id\n",
+    "WHERE\n",
+    "    (a.true_water_source_score = w.subjective_quality_score OR v.visit_count = 1)\n",
+    "    AND a.true_water_source_score <> w.subjective_quality_score\n",
+    "LIMIT 5;"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0be39ace",
+   "metadata": {},
+   "source": [
+    "Linking records to employees\n",
+    "\n",
+    "Look at where these errors may have come from. At some of the locations, employees assigned scores incorrectly, and those records ended up in this results set.\n",
+    "\n",
+    "I think there are two reasons this can happen:\n",
+    "1. The workers are all humans and make mistakes so this is expected.\n",
+    "2. Unfortunately, the alternative is that someone assigned scores incorrectly on purpose\n",
+    "\n",
+    "In either case, the employees are the source of the errors, so JOIN the assigned_employee_id for all the people on our list from the visits table to our query. Remember, our query shows the shows the 102 incorrect records, so when we join the employee data, we can see which employees made these incorrect records."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 43,
+   "id": "3a86e43f",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "5 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "    <thead>\n",
+       "        <tr>\n",
+       "            <th>location_id</th>\n",
+       "            <th>record_id</th>\n",
+       "            <th>auditor_score</th>\n",
+       "            <th>employee_score</th>\n",
+       "            <th>assigned_employee_id</th>\n",
+       "        </tr>\n",
+       "    </thead>\n",
+       "    <tbody>\n",
+       "        <tr>\n",
+       "            <td>AkRu05215</td>\n",
+       "            <td>21160</td>\n",
+       "            <td>3</td>\n",
+       "            <td>10</td>\n",
+       "            <td>34</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>KiRu29290</td>\n",
+       "            <td>7938</td>\n",
+       "            <td>3</td>\n",
+       "            <td>10</td>\n",
+       "            <td>1</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>KiHa22748</td>\n",
+       "            <td>43140</td>\n",
+       "            <td>9</td>\n",
+       "            <td>10</td>\n",
+       "            <td>1</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>SoRu37841</td>\n",
+       "            <td>18495</td>\n",
+       "            <td>6</td>\n",
+       "            <td>10</td>\n",
+       "            <td>34</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>KiRu27884</td>\n",
+       "            <td>33931</td>\n",
+       "            <td>1</td>\n",
+       "            <td>10</td>\n",
+       "            <td>1</td>\n",
+       "        </tr>\n",
+       "    </tbody>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "[('AkRu05215', 21160, 3, 10, 34),\n",
+       " ('KiRu29290', 7938, 3, 10, 1),\n",
+       " ('KiHa22748', 43140, 9, 10, 1),\n",
+       " ('SoRu37841', 18495, 6, 10, 34),\n",
+       " ('KiRu27884', 33931, 1, 10, 1)]"
+      ]
+     },
+     "execution_count": 43,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql\n",
+    "SELECT\n",
+    "    a.location_id AS location_id,\n",
+    "    v.record_id AS record_id,\n",
+    "    a.true_water_source_score AS auditor_score,\n",
+    "    w.subjective_quality_score AS employee_score,\n",
+    "    v.assigned_employee_id as assigned_employee_id\n",
+    "FROM\n",
+    "    auditor_report AS a\n",
+    "JOIN\n",
+    "    visits AS v\n",
+    "    ON a.location_id = v.location_id\n",
+    "LEFT JOIN\n",
+    "    water_quality AS w\n",
+    "    ON v.record_id = w.record_id\n",
+    "WHERE\n",
+    "    (a.true_water_source_score = w.subjective_quality_score OR v.visit_count = 1)\n",
+    "    AND a.true_water_source_score <> w.subjective_quality_score\n",
+    "LIMIT 5;"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 47,
+   "id": "029466fa",
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "5 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "    <thead>\n",
+       "        <tr>\n",
+       "            <th>location_id</th>\n",
+       "            <th>record_id</th>\n",
+       "            <th>auditor_score</th>\n",
+       "            <th>employee_score</th>\n",
+       "            <th>employee_name</th>\n",
+       "        </tr>\n",
+       "    </thead>\n",
+       "    <tbody>\n",
+       "        <tr>\n",
+       "            <td>AkRu05215</td>\n",
+       "            <td>21160</td>\n",
+       "            <td>3</td>\n",
+       "            <td>10</td>\n",
+       "            <td>Rudo Imani</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>KiRu29290</td>\n",
+       "            <td>7938</td>\n",
+       "            <td>3</td>\n",
+       "            <td>10</td>\n",
+       "            <td>Bello Azibo</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>KiHa22748</td>\n",
+       "            <td>43140</td>\n",
+       "            <td>9</td>\n",
+       "            <td>10</td>\n",
+       "            <td>Bello Azibo</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>SoRu37841</td>\n",
+       "            <td>18495</td>\n",
+       "            <td>6</td>\n",
+       "            <td>10</td>\n",
+       "            <td>Rudo Imani</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>KiRu27884</td>\n",
+       "            <td>33931</td>\n",
+       "            <td>1</td>\n",
+       "            <td>10</td>\n",
+       "            <td>Bello Azibo</td>\n",
+       "        </tr>\n",
+       "    </tbody>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "[('AkRu05215', 21160, 3, 10, 'Rudo Imani'),\n",
+       " ('KiRu29290', 7938, 3, 10, 'Bello Azibo'),\n",
+       " ('KiHa22748', 43140, 9, 10, 'Bello Azibo'),\n",
+       " ('SoRu37841', 18495, 6, 10, 'Rudo Imani'),\n",
+       " ('KiRu27884', 33931, 1, 10, 'Bello Azibo')]"
+      ]
+     },
+     "execution_count": 47,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql\n",
+    "# link the incorrect records to the employees who recorded them, fetch their names from the employees table\n",
+    "# instead of the ID's and name it incorrect_records\n",
+    "WITH Incorrect_records AS (\n",
+    "    SELECT\n",
+    "        a.location_id AS location_id,\n",
+    "        v.record_id AS record_id,\n",
+    "        a.true_water_source_score AS auditor_score,\n",
+    "        w.subjective_quality_score AS employee_score,\n",
+    "        e.employee_name\n",
+    "    FROM\n",
+    "        auditor_report AS a\n",
+    "    JOIN\n",
+    "        visits AS v\n",
+    "        ON a.location_id = v.location_id\n",
+    "    LEFT JOIN\n",
+    "        water_quality AS w\n",
+    "        ON v.record_id = w.record_id\n",
+    "    LEFT JOIN\n",
+    "        employee AS e\n",
+    "        ON e.assigned_employee_id = v.assigned_employee_id\n",
+    "    WHERE\n",
+    "        (a.true_water_source_score = w.subjective_quality_score OR v.visit_count = 1)\n",
+    "        AND a.true_water_source_score <> w.subjective_quality_score\n",
+    ")\n",
+    "SELECT *\n",
+    "FROM Incorrect_records\n",
+    "LIMIT 5;"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 50,
+   "id": "8e7d93bc",
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "17 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "    <thead>\n",
+       "        <tr>\n",
+       "            <th>employee_name</th>\n",
+       "        </tr>\n",
+       "    </thead>\n",
+       "    <tbody>\n",
+       "        <tr>\n",
+       "            <td>Rudo Imani</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Bello Azibo</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Zuriel Matembo</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Yewande Ebele</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Jengo Tumaini</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Farai Nia</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Malachi Mavuso</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Makena Thabo</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Lalitha Kaburi</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Gamba Shani</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Enitan Zuri</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Thandiwe Kito</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Pili Zola</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Usafi Ayo</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Deka Osumare</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Ona Sefu</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Xola Uzuri</td>\n",
+       "        </tr>\n",
+       "    </tbody>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "[('Rudo Imani',),\n",
+       " ('Bello Azibo',),\n",
+       " ('Zuriel Matembo',),\n",
+       " ('Yewande Ebele',),\n",
+       " ('Jengo Tumaini',),\n",
+       " ('Farai Nia',),\n",
+       " ('Malachi Mavuso',),\n",
+       " ('Makena Thabo',),\n",
+       " ('Lalitha Kaburi',),\n",
+       " ('Gamba Shani',),\n",
+       " ('Enitan Zuri',),\n",
+       " ('Thandiwe Kito',),\n",
+       " ('Pili Zola',),\n",
+       " ('Usafi Ayo',),\n",
+       " ('Deka Osumare',),\n",
+       " ('Ona Sefu',),\n",
+       " ('Xola Uzuri',)]"
+      ]
+     },
+     "execution_count": 50,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql\n",
+    "# Get a unique list of employees from this table. \n",
+    "\n",
+    "WITH Incorrect_records AS (\n",
+    "    SELECT\n",
+    "        a.location_id AS location_id,\n",
+    "        v.record_id AS record_id,\n",
+    "        a.true_water_source_score AS auditor_score,\n",
+    "        w.subjective_quality_score AS employee_score,\n",
+    "        e.employee_name\n",
+    "    FROM\n",
+    "        auditor_report AS a\n",
+    "    JOIN\n",
+    "        visits AS v\n",
+    "        ON a.location_id = v.location_id\n",
+    "    LEFT JOIN\n",
+    "        water_quality AS w\n",
+    "        ON v.record_id = w.record_id\n",
+    "    LEFT JOIN\n",
+    "        employee AS e\n",
+    "        ON e.assigned_employee_id = v.assigned_employee_id\n",
+    "    WHERE\n",
+    "        (a.true_water_source_score = w.subjective_quality_score OR v.visit_count = 1)\n",
+    "        AND a.true_water_source_score <> w.subjective_quality_score\n",
+    ")\n",
+    "SELECT DISTINCT employee_name\n",
+    "FROM Incorrect_records;"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 49,
+   "id": "403aae1f",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "17 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "    <thead>\n",
+       "        <tr>\n",
+       "            <th>employee_name</th>\n",
+       "            <th>number_of_mistakes</th>\n",
+       "        </tr>\n",
+       "    </thead>\n",
+       "    <tbody>\n",
+       "        <tr>\n",
+       "            <td>Bello Azibo</td>\n",
+       "            <td>26</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Malachi Mavuso</td>\n",
+       "            <td>21</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Zuriel Matembo</td>\n",
+       "            <td>17</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Lalitha Kaburi</td>\n",
+       "            <td>7</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Rudo Imani</td>\n",
+       "            <td>5</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Farai Nia</td>\n",
+       "            <td>4</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Enitan Zuri</td>\n",
+       "            <td>4</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Yewande Ebele</td>\n",
+       "            <td>3</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Jengo Tumaini</td>\n",
+       "            <td>3</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Makena Thabo</td>\n",
+       "            <td>3</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Gamba Shani</td>\n",
+       "            <td>3</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Thandiwe Kito</td>\n",
+       "            <td>1</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Pili Zola</td>\n",
+       "            <td>1</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Usafi Ayo</td>\n",
+       "            <td>1</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Deka Osumare</td>\n",
+       "            <td>1</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Ona Sefu</td>\n",
+       "            <td>1</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Xola Uzuri</td>\n",
+       "            <td>1</td>\n",
+       "        </tr>\n",
+       "    </tbody>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "[('Bello Azibo', 26),\n",
+       " ('Malachi Mavuso', 21),\n",
+       " ('Zuriel Matembo', 17),\n",
+       " ('Lalitha Kaburi', 7),\n",
+       " ('Rudo Imani', 5),\n",
+       " ('Farai Nia', 4),\n",
+       " ('Enitan Zuri', 4),\n",
+       " ('Yewande Ebele', 3),\n",
+       " ('Jengo Tumaini', 3),\n",
+       " ('Makena Thabo', 3),\n",
+       " ('Gamba Shani', 3),\n",
+       " ('Thandiwe Kito', 1),\n",
+       " ('Pili Zola', 1),\n",
+       " ('Usafi Ayo', 1),\n",
+       " ('Deka Osumare', 1),\n",
+       " ('Ona Sefu', 1),\n",
+       " ('Xola Uzuri', 1)]"
+      ]
+     },
+     "execution_count": 49,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql\n",
+    "# calculate how many mistakes each employee made. \n",
+    "# count how many times their name is Incorrect_records list and group them by name\n",
+    "WITH Incorrect_records AS (\n",
+    "    SELECT\n",
+    "        a.location_id AS location_id,\n",
+    "        v.record_id AS record_id,\n",
+    "        a.true_water_source_score AS auditor_score,\n",
+    "        w.subjective_quality_score AS employee_score,\n",
+    "        e.employee_name\n",
+    "    FROM\n",
+    "        auditor_report AS a\n",
+    "    JOIN\n",
+    "        visits AS v\n",
+    "        ON a.location_id = v.location_id\n",
+    "    LEFT JOIN\n",
+    "        water_quality AS w\n",
+    "        ON v.record_id = w.record_id\n",
+    "    LEFT JOIN\n",
+    "        employee AS e\n",
+    "        ON e.assigned_employee_id = v.assigned_employee_id\n",
+    "    WHERE\n",
+    "        (a.true_water_source_score = w.subjective_quality_score OR v.visit_count = 1)\n",
+    "        AND a.true_water_source_score <> w.subjective_quality_score\n",
+    ")\n",
+    "SELECT\n",
+    "    employee_name,\n",
+    "    COUNT(*) AS number_of_mistakes\n",
+    "FROM Incorrect_records\n",
+    "GROUP BY employee_name\n",
+    "ORDER BY number_of_mistakes DESC;"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 51,
+   "id": "a964005a",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "1 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "    <thead>\n",
+       "        <tr>\n",
+       "            <th>avg_error_count_per_empl</th>\n",
+       "        </tr>\n",
+       "    </thead>\n",
+       "    <tbody>\n",
+       "        <tr>\n",
+       "            <td>6.0000</td>\n",
+       "        </tr>\n",
+       "    </tbody>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "[(Decimal('6.0000'),)]"
+      ]
+     },
+     "execution_count": 51,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql\n",
+    "# First calculate the number of times someone's name comes up. (we just did that in the previousquery). Let's call it error_count.\n",
+    "# Then, calculate the average number of mistakes employees made. We can do that by taking the average of the previous query's\n",
+    "# results. \n",
+    "\n",
+    "WITH Incorrect_records AS (\n",
+    "    SELECT\n",
+    "        a.location_id AS location_id,\n",
+    "        v.record_id AS record_id,\n",
+    "        a.true_water_source_score AS auditor_score,\n",
+    "        w.subjective_quality_score AS employee_score,\n",
+    "        e.employee_name\n",
+    "    FROM\n",
+    "        auditor_report AS a\n",
+    "    JOIN\n",
+    "        visits AS v\n",
+    "        ON a.location_id = v.location_id\n",
+    "    LEFT JOIN\n",
+    "        water_quality AS w\n",
+    "        ON v.record_id = w.record_id\n",
+    "    LEFT JOIN\n",
+    "        employee AS e\n",
+    "        ON e.assigned_employee_id = v.assigned_employee_id\n",
+    "    WHERE\n",
+    "        (a.true_water_source_score = w.subjective_quality_score OR v.visit_count = 1)\n",
+    "        AND a.true_water_source_score <> w.subjective_quality_score\n",
+    "),\n",
+    "ErrorCount AS (\n",
+    "    SELECT\n",
+    "        employee_name,\n",
+    "        COUNT(*) AS number_of_mistakes\n",
+    "    FROM Incorrect_records\n",
+    "    GROUP BY employee_name\n",
+    ")\n",
+    "\n",
+    "SELECT\n",
+    "    AVG(number_of_mistakes) AS avg_error_count_per_empl\n",
+    "FROM ErrorCount;"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 53,
+   "id": "d68dbd56",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "4 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "    <thead>\n",
+       "        <tr>\n",
+       "            <th>employee_name</th>\n",
+       "            <th>number_of_mistakes</th>\n",
+       "        </tr>\n",
+       "    </thead>\n",
+       "    <tbody>\n",
+       "        <tr>\n",
+       "            <td>Bello Azibo</td>\n",
+       "            <td>26</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Zuriel Matembo</td>\n",
+       "            <td>17</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Malachi Mavuso</td>\n",
+       "            <td>21</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Lalitha Kaburi</td>\n",
+       "            <td>7</td>\n",
+       "        </tr>\n",
+       "    </tbody>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "[('Bello Azibo', 26),\n",
+       " ('Zuriel Matembo', 17),\n",
+       " ('Malachi Mavuso', 21),\n",
+       " ('Lalitha Kaburi', 7)]"
+      ]
+     },
+     "execution_count": 53,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql\n",
+    "# Query suspect list\n",
+    "WITH Incorrect_records AS (\n",
+    "    SELECT\n",
+    "        a.location_id AS location_id,\n",
+    "        v.record_id AS record_id,\n",
+    "        a.true_water_source_score AS auditor_score,\n",
+    "        w.subjective_quality_score AS employee_score,\n",
+    "        e.employee_name\n",
+    "    FROM\n",
+    "        auditor_report AS a\n",
+    "    JOIN\n",
+    "        visits AS v\n",
+    "        ON a.location_id = v.location_id\n",
+    "    LEFT JOIN\n",
+    "        water_quality AS w\n",
+    "        ON v.record_id = w.record_id\n",
+    "    LEFT JOIN\n",
+    "        employee AS e\n",
+    "        ON e.assigned_employee_id = v.assigned_employee_id\n",
+    "    WHERE\n",
+    "        (a.true_water_source_score = w.subjective_quality_score OR v.visit_count = 1)\n",
+    "        AND a.true_water_source_score <> w.subjective_quality_score\n",
+    "),\n",
+    "ErrorCount AS (\n",
+    "    SELECT\n",
+    "        employee_name,\n",
+    "        COUNT(*) AS number_of_mistakes\n",
+    "    FROM Incorrect_records\n",
+    "    GROUP BY employee_name\n",
+    ")\n",
+    "\n",
+    "\n",
+    "SELECT\n",
+    "       employee_name,\n",
+    "       number_of_mistakes\n",
+    "FROM\n",
+    "       ErrorCount\n",
+    "WHERE\n",
+    "       number_of_mistakes > (SELECT AVG(number_of_mistakes) FROM ErrorCount);"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 54,
+   "id": "a5588f1f",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "4 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "    <thead>\n",
+       "        <tr>\n",
+       "            <th>employee_name</th>\n",
+       "            <th>number_of_mistakes</th>\n",
+       "        </tr>\n",
+       "    </thead>\n",
+       "    <tbody>\n",
+       "        <tr>\n",
+       "            <td>Bello Azibo</td>\n",
+       "            <td>26</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Zuriel Matembo</td>\n",
+       "            <td>17</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Malachi Mavuso</td>\n",
+       "            <td>21</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Lalitha Kaburi</td>\n",
+       "            <td>7</td>\n",
+       "        </tr>\n",
+       "    </tbody>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "[('Bello Azibo', 26),\n",
+       " ('Zuriel Matembo', 17),\n",
+       " ('Malachi Mavuso', 21),\n",
+       " ('Lalitha Kaburi', 7)]"
+      ]
+     },
+     "execution_count": 54,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql\n",
+    "# QUERY to convert the suspect_list to a CTE, plus the suspects and their number of mistakes\n",
+    "WITH Incorrect_records AS (\n",
+    "    SELECT\n",
+    "        a.location_id AS location_id,\n",
+    "        v.record_id AS record_id,\n",
+    "        a.true_water_source_score AS auditor_score,\n",
+    "        w.subjective_quality_score AS employee_score,\n",
+    "        e.employee_name\n",
+    "    FROM\n",
+    "        auditor_report AS a\n",
+    "    JOIN\n",
+    "        visits AS v\n",
+    "        ON a.location_id = v.location_id\n",
+    "    LEFT JOIN\n",
+    "        water_quality AS w\n",
+    "        ON v.record_id = w.record_id\n",
+    "    LEFT JOIN\n",
+    "        employee AS e\n",
+    "        ON e.assigned_employee_id = v.assigned_employee_id\n",
+    "    WHERE\n",
+    "        (a.true_water_source_score = w.subjective_quality_score OR v.visit_count = 1)\n",
+    "        AND a.true_water_source_score <> w.subjective_quality_score\n",
+    "),\n",
+    "ErrorCount AS (\n",
+    "    SELECT\n",
+    "        employee_name,\n",
+    "        COUNT(*) AS number_of_mistakes\n",
+    "    FROM Incorrect_records\n",
+    "    GROUP BY employee_name\n",
+    "),\n",
+    "SuspectList AS (\n",
+    "    SELECT\n",
+    "        employee_name,\n",
+    "        number_of_mistakes\n",
+    "    FROM\n",
+    "        ErrorCount\n",
+    "    WHERE\n",
+    "        number_of_mistakes > (SELECT AVG(number_of_mistakes) FROM ErrorCount)\n",
+    ")\n",
+    "\n",
+    "SELECT\n",
+    "    employee_name,\n",
+    "    number_of_mistakes\n",
+    "FROM SuspectList;"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 56,
+   "id": "3ab51631",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "5 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "    <thead>\n",
+       "        <tr>\n",
+       "            <th>employee_name</th>\n",
+       "            <th>location_id</th>\n",
+       "            <th>statements</th>\n",
+       "        </tr>\n",
+       "    </thead>\n",
+       "    <tbody>\n",
+       "        <tr>\n",
+       "            <td>Bello Azibo</td>\n",
+       "            <td>KiRu29290</td>\n",
+       "            <td>A young artist sketches the faces in the queue, capturing the weariness of daily hours spent waiting for water.</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Bello Azibo</td>\n",
+       "            <td>KiHa22748</td>\n",
+       "            <td>A young girl&#x27;s hopeful eyes are clouded by mistrust, her innocence tarnished by the corrupt system.</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Bello Azibo</td>\n",
+       "            <td>KiRu27884</td>\n",
+       "            <td>A traditional healer&#x27;s empathy turns to bitterness, knowing that corrupt practices harm her community.</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Zuriel Matembo</td>\n",
+       "            <td>KiZu31170</td>\n",
+       "            <td>A community leader stood with his people, expressing concern for the water quality and the time lost in queues.&quot;,&quot;</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Bello Azibo</td>\n",
+       "            <td>AkRu06495</td>\n",
+       "            <td>A healthcare worker in the queue expressed fears about water-borne diseases, her face etched with worry.&quot;,&quot;</td>\n",
+       "        </tr>\n",
+       "    </tbody>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "[('Bello Azibo', 'KiRu29290', 'A young artist sketches the faces in the queue, capturing the weariness of daily hours spent waiting for water.'),\n",
+       " ('Bello Azibo', 'KiHa22748', \"A young girl's hopeful eyes are clouded by mistrust, her innocence tarnished by the corrupt system.\"),\n",
+       " ('Bello Azibo', 'KiRu27884', \"A traditional healer's empathy turns to bitterness, knowing that corrupt practices harm her community.\"),\n",
+       " ('Zuriel Matembo', 'KiZu31170', 'A community leader stood with his people, expressing concern for the water quality and the time lost in queues.\",\"'),\n",
+       " ('Bello Azibo', 'AkRu06495', 'A healthcare worker in the queue expressed fears about water-borne diseases, her face etched with worry.\",\"')]"
+      ]
+     },
+     "execution_count": 56,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql\n",
+    "# QUERY to add the statements column to the Incorrect_records CTE. Then pull up all of the records where the employee_name is in the suspect list\n",
+    "WITH Incorrect_records AS (\n",
+    "    SELECT\n",
+    "        a.location_id AS location_id,\n",
+    "        v.record_id AS record_id,\n",
+    "        a.true_water_source_score AS auditor_score,\n",
+    "        w.subjective_quality_score AS employee_score,\n",
+    "        a.statements,  -- Add statements column\n",
+    "        e.employee_name\n",
+    "    FROM\n",
+    "        auditor_report AS a\n",
+    "    JOIN\n",
+    "        visits AS v\n",
+    "        ON a.location_id = v.location_id\n",
+    "    LEFT JOIN\n",
+    "        water_quality AS w\n",
+    "        ON v.record_id = w.record_id\n",
+    "    LEFT JOIN\n",
+    "        employee AS e\n",
+    "        ON e.assigned_employee_id = v.assigned_employee_id\n",
+    "    WHERE\n",
+    "        (a.true_water_source_score = w.subjective_quality_score OR v.visit_count = 1)\n",
+    "        AND a.true_water_source_score <> w.subjective_quality_score\n",
+    "),\n",
+    "ErrorCount AS (\n",
+    "    SELECT\n",
+    "        employee_name,\n",
+    "        COUNT(*) AS number_of_mistakes\n",
+    "    FROM Incorrect_records\n",
+    "    GROUP BY employee_name\n",
+    "),\n",
+    "SuspectList AS (\n",
+    "    SELECT\n",
+    "        employee_name,\n",
+    "        number_of_mistakes\n",
+    "    FROM\n",
+    "        ErrorCount\n",
+    "    WHERE\n",
+    "        number_of_mistakes > (SELECT AVG(number_of_mistakes) FROM ErrorCount)\n",
+    ")\n",
+    "\n",
+    "SELECT\n",
+    "    i.employee_name,\n",
+    "    i.location_id,\n",
+    "    i.statements\n",
+    "FROM\n",
+    "    Incorrect_records AS i\n",
+    "WHERE\n",
+    "    i.employee_name IN (SELECT employee_name FROM SuspectList)\n",
+    "LIMIT 5;"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 59,
+   "id": "b065ff5b",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "5 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "    <thead>\n",
+       "        <tr>\n",
+       "            <th>employee_name</th>\n",
+       "            <th>location_id</th>\n",
+       "            <th>statements</th>\n",
+       "        </tr>\n",
+       "    </thead>\n",
+       "    <tbody>\n",
+       "        <tr>\n",
+       "            <td>Zuriel Matembo</td>\n",
+       "            <td>SoRu38331</td>\n",
+       "            <td>An unsettling atmosphere surrounded the official, as villagers shared their experiences of arrogance and lack of dedication. The mention of cash exchanges only intensified their doubts.</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Bello Azibo</td>\n",
+       "            <td>KiIs23853</td>\n",
+       "            <td>Villagers&#x27; wary accounts of an official&#x27;s arrogance and detachment from their concerns raised suspicions. The mention of cash changing hands further tainted their perception.</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Bello Azibo</td>\n",
+       "            <td>HaSe21323</td>\n",
+       "            <td>Villagers spoke of an unsettling encounter with an official who appeared dismissive and detached. The reference to cash transactions added to their growing sense of distrust.</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Zuriel Matembo</td>\n",
+       "            <td>AkRu05880</td>\n",
+       "            <td>Villagers&#x27; wary accounts of an official&#x27;s arrogance and detachment from their concerns raised suspicions. The allusion to cash changing hands deepened their skepticism.</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Bello Azibo</td>\n",
+       "            <td>KiRu27065</td>\n",
+       "            <td>Villagers expressed their discomfort with an official who displayed a haughty demeanor and negligence. The mention of cash transactions deepened their growing sense of unease.</td>\n",
+       "        </tr>\n",
+       "    </tbody>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "[('Zuriel Matembo', 'SoRu38331', 'An unsettling atmosphere surrounded the official, as villagers shared their experiences of arrogance and lack of dedication. The mention of cash exchanges only intensified their doubts.'),\n",
+       " ('Bello Azibo', 'KiIs23853', \"Villagers' wary accounts of an official's arrogance and detachment from their concerns raised suspicions. The mention of cash changing hands further tainted their perception.\"),\n",
+       " ('Bello Azibo', 'HaSe21323', 'Villagers spoke of an unsettling encounter with an official who appeared dismissive and detached. The reference to cash transactions added to their growing sense of distrust.'),\n",
+       " ('Zuriel Matembo', 'AkRu05880', \"Villagers' wary accounts of an official's arrogance and detachment from their concerns raised suspicions. The allusion to cash changing hands deepened their skepticism.\"),\n",
+       " ('Bello Azibo', 'KiRu27065', 'Villagers expressed their discomfort with an official who displayed a haughty demeanor and negligence. The mention of cash transactions deepened their growing sense of unease.')]"
+      ]
+     },
+     "execution_count": 59,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql\n",
+    "# QUERY to filter the word cash\n",
+    "WITH Incorrect_records AS (\n",
+    "    SELECT\n",
+    "        a.location_id AS location_id,\n",
+    "        v.record_id AS record_id,\n",
+    "        a.true_water_source_score AS auditor_score,\n",
+    "        w.subjective_quality_score AS employee_score,\n",
+    "        a.statements,\n",
+    "        e.employee_name\n",
+    "    FROM\n",
+    "        auditor_report AS a\n",
+    "    JOIN\n",
+    "        visits AS v\n",
+    "        ON a.location_id = v.location_id\n",
+    "    LEFT JOIN\n",
+    "        water_quality AS w\n",
+    "        ON v.record_id = w.record_id\n",
+    "    LEFT JOIN\n",
+    "        employee AS e\n",
+    "        ON e.assigned_employee_id = v.assigned_employee_id\n",
+    "    WHERE\n",
+    "        (a.true_water_source_score = w.subjective_quality_score OR v.visit_count = 1)\n",
+    "        AND a.true_water_source_score <> w.subjective_quality_score\n",
+    "        AND a.statements LIKE '%cash%'  -- Filter for \"cash\" in statements\n",
+    "),\n",
+    "ErrorCount AS (\n",
+    "    SELECT\n",
+    "        employee_name,\n",
+    "        COUNT(*) AS number_of_mistakes\n",
+    "    FROM Incorrect_records\n",
+    "    GROUP BY employee_name\n",
+    "),\n",
+    "SuspectList AS (\n",
+    "    SELECT\n",
+    "        employee_name,\n",
+    "        number_of_mistakes\n",
+    "    FROM\n",
+    "        ErrorCount\n",
+    "    WHERE\n",
+    "        number_of_mistakes > (SELECT AVG(number_of_mistakes) FROM ErrorCount)\n",
+    ")\n",
+    "\n",
+    "SELECT\n",
+    "    i.employee_name,\n",
+    "    i.location_id,\n",
+    "    i.statements\n",
+    "FROM\n",
+    "    Incorrect_records AS i\n",
+    "WHERE\n",
+    "    i.employee_name IN (SELECT employee_name FROM SuspectList)\n",
+    "LIMIT 5;"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 61,
+   "id": "bc40f842",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "5 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "    <thead>\n",
+       "        <tr>\n",
+       "            <th>audit_location</th>\n",
+       "            <th>auditor_score</th>\n",
+       "            <th>record_id</th>\n",
+       "            <th>surveyor_score</th>\n",
+       "            <th>assigned_employee_id</th>\n",
+       "            <th>employee_name</th>\n",
+       "        </tr>\n",
+       "    </thead>\n",
+       "    <tbody>\n",
+       "        <tr>\n",
+       "            <td>AkRu05215</td>\n",
+       "            <td>3</td>\n",
+       "            <td>21160</td>\n",
+       "            <td>10</td>\n",
+       "            <td>34</td>\n",
+       "            <td>Rudo Imani</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>KiRu29290</td>\n",
+       "            <td>3</td>\n",
+       "            <td>7938</td>\n",
+       "            <td>10</td>\n",
+       "            <td>1</td>\n",
+       "            <td>Bello Azibo</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>KiHa22748</td>\n",
+       "            <td>9</td>\n",
+       "            <td>43140</td>\n",
+       "            <td>10</td>\n",
+       "            <td>1</td>\n",
+       "            <td>Bello Azibo</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>SoRu37841</td>\n",
+       "            <td>6</td>\n",
+       "            <td>18495</td>\n",
+       "            <td>10</td>\n",
+       "            <td>34</td>\n",
+       "            <td>Rudo Imani</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>KiRu27884</td>\n",
+       "            <td>1</td>\n",
+       "            <td>33931</td>\n",
+       "            <td>10</td>\n",
+       "            <td>1</td>\n",
+       "            <td>Bello Azibo</td>\n",
+       "        </tr>\n",
+       "    </tbody>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "[('AkRu05215', 3, 21160, 10, 34, 'Rudo Imani'),\n",
+       " ('KiRu29290', 3, 7938, 10, 1, 'Bello Azibo'),\n",
+       " ('KiHa22748', 9, 43140, 10, 1, 'Bello Azibo'),\n",
+       " ('SoRu37841', 6, 18495, 10, 34, 'Rudo Imani'),\n",
+       " ('KiRu27884', 1, 33931, 10, 1, 'Bello Azibo')]"
+      ]
+     },
+     "execution_count": 61,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql\n",
+    "# QUERY for incorrect records CTE\n",
+    "WITH Incorrect_records AS (\n",
+    "SELECT\n",
+    "    a.location_id AS audit_location,\n",
+    "    a.true_water_source_score as auditor_score,\n",
+    "    v.record_id,\n",
+    "    wq.subjective_quality_score as surveyor_score,\n",
+    "    v.assigned_employee_id,\n",
+    "    e.employee_name\n",
+    "FROM\n",
+    "    auditor_report as a\n",
+    "JOIN\n",
+    "    Visits as V\n",
+    "    on a.location_id = v.location_id\n",
+    "JOIN\n",
+    "    Water_quality as wq\n",
+    "    ON wq.record_id = v.record_id\n",
+    "JOIN\n",
+    "    employee as e\n",
+    "    ON e.assigned_employee_id = v.assigned_employee_id\n",
+    "WHERE\n",
+    "    wq.subjective_quality_score - a.true_water_source_score != 0\n",
+    "    and v.visit_count = 1\n",
+    "    )\n",
+    "    \n",
+    "    SELECT \n",
+    "        * \n",
+    "    FROM \n",
+    "        Incorrect_records\n",
+    "        LIMIT 5"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 62,
+   "id": "bcdecb82",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "4 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "    <thead>\n",
+       "        <tr>\n",
+       "            <th>employee_name</th>\n",
+       "            <th>number_of_mistakes</th>\n",
+       "        </tr>\n",
+       "    </thead>\n",
+       "    <tbody>\n",
+       "        <tr>\n",
+       "            <td>Bello Azibo</td>\n",
+       "            <td>26</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Zuriel Matembo</td>\n",
+       "            <td>17</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Malachi Mavuso</td>\n",
+       "            <td>21</td>\n",
+       "        </tr>\n",
+       "        <tr>\n",
+       "            <td>Lalitha Kaburi</td>\n",
+       "            <td>7</td>\n",
+       "        </tr>\n",
+       "    </tbody>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "[('Bello Azibo', 26),\n",
+       " ('Zuriel Matembo', 17),\n",
+       " ('Malachi Mavuso', 21),\n",
+       " ('Lalitha Kaburi', 7)]"
+      ]
+     },
+     "execution_count": 62,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql\n",
+    "# QUERY for employees with above average mistakes\n",
+    "WITH Incorrect_records AS (\n",
+    "SELECT\n",
+    "    a.location_id AS audit_location,\n",
+    "    a.true_water_source_score as auditor_score,\n",
+    "    v.record_id,\n",
+    "    wq.subjective_quality_score as surveyor_score,\n",
+    "    v.assigned_employee_id,\n",
+    "    e.employee_name\n",
+    "FROM\n",
+    "    auditor_report as a\n",
+    "JOIN\n",
+    "    Visits as V\n",
+    "    on a.location_id = v.location_id\n",
+    "JOIN\n",
+    "    Water_quality as wq\n",
+    "    ON wq.record_id = v.record_id\n",
+    "JOIN\n",
+    "    employee as e\n",
+    "    ON e.assigned_employee_id = v.assigned_employee_id\n",
+    "WHERE\n",
+    "wq.subjective_quality_score - a.true_water_source_score != 0\n",
+    "    and v.visit_count = 1\n",
+    "    ),\n",
+    "    \n",
+    "Error_Count AS (\n",
+    "    SELECT DISTINCT\n",
+    "        employee_name,\n",
+    "        COUNT(*) as number_of_mistakes\n",
+    "    FROM \n",
+    "        Incorrect_records\n",
+    "    GROUP BY\n",
+    "        employee_name\n",
+    "        ),\n",
+    "        \n",
+    "Avg_error_count_per_employee AS (\n",
+    "SELECT\n",
+    "        AVG(number_of_mistakes) as avg_error_count_per_empl\n",
+    "    FROM\n",
+    "        error_count\n",
+    "        )\n",
+    "        \n",
+    "SELECT\n",
+    "    employee_name,\n",
+    "    number_of_mistakes\n",
+    "FROM\n",
+    "    error_count\n",
+    "WHERE\n",
+    "    number_of_mistakes > (SELECT\n",
+    "                            AVG(number_of_mistakes) as avg_error_count_per_empl\n",
+    "                        FROM\n",
+    "                            error_count);"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 68,
+   "id": "68d529a4",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "1 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "    <thead>\n",
+       "        <tr>\n",
+       "            <th>employee_name</th>\n",
+       "            <th>location_id</th>\n",
+       "            <th>statements</th>\n",
+       "        </tr>\n",
+       "    </thead>\n",
+       "    <tbody>\n",
+       "        <tr>\n",
+       "            <td>Lalitha Kaburi</td>\n",
+       "            <td>KiRu29329</td>\n",
+       "            <td>Suspicion colored villagers&#x27; descriptions of an official&#x27;s aloof demeanor and apparent laziness. The reference to cash transactions cast doubt on their motives.</td>\n",
+       "        </tr>\n",
+       "    </tbody>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "[('Lalitha Kaburi', 'KiRu29329', \"Suspicion colored villagers' descriptions of an official's aloof demeanor and apparent laziness. The reference to cash transactions cast doubt on their motives.\")]"
+      ]
+     },
+     "execution_count": 68,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql\n",
+    "# Query Susp_list\n",
+    "WITH error_count AS ( \n",
+    "#     -- This CTE calculates the number of mistakes each employee made\n",
+    "                SELECT\n",
+    "                    employee_name,\n",
+    "                    COUNT(employee_name) AS number_of_mistakes\n",
+    "                FROM\n",
+    "                    Incorrect_records\n",
+    "\n",
+    "# -- Incorrect_records is a view that joins the audit report to the database\n",
+    "# -- for records where the auditor and\n",
+    "# -- employees scores are different*\n",
+    "\n",
+    "GROUP BY\n",
+    "    employee_name),\n",
+    "suspect_list AS (\n",
+    "#     -- This CTE SELECTS the employees with above−average mistakes\n",
+    "            SELECT\n",
+    "                employee_name,\n",
+    "                number_of_mistakes\n",
+    "            FROM\n",
+    "                error_count\n",
+    "            WHERE\n",
+    "                number_of_mistakes > (SELECT \n",
+    "                                        AVG(number_of_mistakes) \n",
+    "                                    FROM \n",
+    "                                        error_count))\n",
+    "# -- This query filters all of the records where the \"corrupt\" employees gathered data.\n",
+    "SELECT\n",
+    "    employee_name,\n",
+    "    location_id,\n",
+    "    statements\n",
+    "FROM\n",
+    "    Incorrect_records\n",
+    "WHERE\n",
+    "    employee_name in (\n",
+    "                        SELECT\n",
+    "                       employee_name \n",
+    "                    FROM \n",
+    "                       suspect_list)\n",
+    "AND \n",
+    "   statements LIKE \"%Suspicion colored villagers%\""
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 67,
+   "id": "0737224f",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " * mysql+pymysql://root:***@localhost:3307/md_water_services\n",
+      "1 rows affected.\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<table>\n",
+       "    <thead>\n",
+       "        <tr>\n",
+       "            <th>employee_name</th>\n",
+       "            <th>location_id</th>\n",
+       "            <th>statements</th>\n",
+       "        </tr>\n",
+       "    </thead>\n",
+       "    <tbody>\n",
+       "        <tr>\n",
+       "            <td>Lalitha Kaburi</td>\n",
+       "            <td>KiRu29329</td>\n",
+       "            <td>Suspicion colored villagers&#x27; descriptions of an official&#x27;s aloof demeanor and apparent laziness. The reference to cash transactions cast doubt on their motives.</td>\n",
+       "        </tr>\n",
+       "    </tbody>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "[('Lalitha Kaburi', 'KiRu29329', \"Suspicion colored villagers' descriptions of an official's aloof demeanor and apparent laziness. The reference to cash transactions cast doubt on their motives.\")]"
+      ]
+     },
+     "execution_count": 67,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%%sql\n",
+    "# - Consider the provided SQL query. What does it do?\n",
+    "\n",
+    "SELECT\n",
+    "    auditorRep.location_id,\n",
+    "    visitsTbl.record_id,\n",
+    "    auditorRep.true_water_source_score AS auditor_score,\n",
+    "    wq.subjective_quality_score AS employee_score,\n",
+    "    wq.subjective_quality_score - auditorRep.true_water_source_score  AS score_diff\n",
+    "FROM \n",
+    "    auditor_report AS auditorRep\n",
+    "JOIN \n",
+    "    visits AS visitsTbl\n",
+    "ON \n",
+    "    auditorRep.location_id = visitsTbl.location_id\n",
+    "JOIN \n",
+    "    water_quality AS wq\n",
+    "ON \n",
+    "   visitsTbl.record_id = wq.record_id\n",
+    "WHERE\n",
+    "    (wq.subjective_quality_score - auditorRep.true_water_source_score) > 9;\n",
+    "\n",
+    "# ANSWER: The query retrieves the auditor records where employees assigned very high scores to very poor water sources."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9bccda6f",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.10.9"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
