@@ -15,9 +15,8 @@ Flag potentially corrupt employees,
 Link irregularities to specific surveyed locations.
 
 ## 🗂️ Data Sources
-md_water_services: Main dataset on water sources, quality, and employee records.
-
-auditor_report.csv: External report for validating internal data.
+The primary dataset used for this analysis is the ["md_water_services"](https://drive.google.com/file/d/1nXeoG9nnSs4oiVvft3K9VFUfRiYzvTJF/view?usp=sharing) data, containing detailed information about each water source, employee performance and water quality and tools.
+["adult_report.csv"](https://drive.google.com/file/d/1IbJZyDn_-8qf-N74kfXLwY4d-Vw9reQz/view?usp=sharing) was also added to the table in the second phase to conduct deep analysis on data inconsistencies.
 
 ## ⚙️ Tools & Techniques
 SQL: Data cleaning, joins, filtering, CTEs, views, subqueries
