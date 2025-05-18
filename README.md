@@ -1,4 +1,4 @@
-# Integrated-Water-Access-Data-Analysis-Project-in-Maji-Ndogo
+# Maji-Ndogo-Water-Access-Analysis
 ## 📘 Project Overview
 This project analyzes water service delivery and data integrity in Maji Ndogo, a fictional country, using SQL. It was completed in two phases:
 
