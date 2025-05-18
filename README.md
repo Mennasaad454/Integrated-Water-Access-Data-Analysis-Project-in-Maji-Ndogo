@@ -33,15 +33,16 @@ Added calculated fields (e.g., email, population brackets)
 Merged auditor report into main dataset for Phase 2 analysis
 
 ## 🔍 Key Insights
-River users: Recommend immediate water truck delivery and long-term well drilling
+Based on the analysis, the following actions are recommended to improve water access and system integrity in Maji Ndogo:
 
-Contaminated wells: Install UV or reverse osmosis filters, investigate pollution sources
+- River-dependent communities: Deploy water trucks as a short-term solution. Begin well drilling in these areas to establish long-term access to clean water.
 
-Shared taps: Use queue-time data to deploy extra tankers; add taps in high-demand areas
+- Contaminated wells: Install appropriate filtration systems—UV filters for biological contaminants and reverse osmosis systems for chemical pollution. Further investigation is needed to identify pollution sources and prevent recurrence.
 
-Broken infrastructure: Prioritize repairs with high user impact (e.g., shared reservoirs)
+- Shared taps (high demand): Use queue-time data to schedule water tankers during peak hours. Begin expanding tap infrastructure in areas where wait times exceed the UN-recommended 30-minute maximum.
 
-Corruption: Identified four officials with suspicious data manipulation patterns
+- Shared taps (low demand): Reducing wait times further is inefficient. Long-term investment in household taps is a more strategic solution, though resource-intensive.
 
-## ✅ Outcome
-This project demonstrated the power of SQL for real-world public service analysis—combining operational insights with data integrity checks to support more equitable and efficient water access.
+- Broken infrastructure: Prioritize repairs that have broad impact—such as damaged reservoirs or pipes serving multiple taps. Identify and target the most affected areas for efficient resource allocation.
+
+- Data integrity concerns: Analysis revealed irregularities linked to four officials suspected of falsifying reports or accepting bribes. Recommend initiating a formal audit and strengthening data validation processes.
