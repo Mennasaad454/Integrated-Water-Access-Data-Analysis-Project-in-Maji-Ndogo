@@ -1,1 +1,760 @@
+# Get to know our data
 
+# view table names 
+SHOW TABLES;
+# Have a look at these tables
+SELECT *
+FROM data_dictionary;
+SELECT *
+FROM location;
+SELECT *
+FROM water_source;
+
+# Phase 1: Data Cleaning & Operational Analysis
+# This phase focused on cleaning and preparing the dataset, then analyzing water services across Maji Ndogo. It involved identifying service gaps, water source issues, and employee performance using SQL.
+# create employee email table
+# replace the space in employee_name from the employee table with a full stop to create an official email address to the names 
+
+SELECT CONCAT(
+    (LOWER(REPLACE(employee_name, ' ','.'))), '@ndogowater.gov')
+FROM md_water_services.employee
+LIMIT 5;
+
+# Unlock sql update
+SET SQL_SAFE_UPDATES=0;
+# update employee table by creating a new column
+UPDATE employee
+SET email = CONCAT(
+    (LOWER(REPLACE(employee_name, ' ','.'))), '@ndogowater.gov');
+
+# check the phone_numebr on the employee table to ensure that there is no extra space and trim the excess spaces
+SELECT
+LENGTH(phone_number)
+FROM md_water_services.employee
+LIMIT 5;
+
+# Trim the excess space on the phone_number column 
+SELECT
+TRIM(LENGTH(phone_number))
+FROM md_water_services.employee
+LIMIT 5;
+
+# Update the phone_number on employee table
+UPDATE md_water_services.employee
+SET phone_number = TRIM(phone_number);
+
+# count how many employees live in each town using the employee table.
+SELECT town_name, COUNT(employee_name) AS number_of_people
+FROM md_water_services.employee
+GROUP BY town_name
+LIMIT 5;
+
+# use the vist table to find and arrage the highest number of locations visited.
+SELECT assigned_employee_id,
+   COUNT(location_id) AS number_of_visits
+FROM md_water_services.visits
+GROUP BY assigned_employee_id
+ORDER BY number_of_visits DESC
+LIMIT 3;
+
+# Create a query that counts the number of records per town, province and location
+SELECT province_name, town_name, location_type,
+    COUNT(town_name) AS records_per_town,
+    COUNT(location_type) AS num_of_sources
+FROM location
+GROUP BY town_name, province_name, location_type
+ORDER BY province_name, records_per_town, num_of_sources DESC
+LIMIT 3;
+
+# count how many of each of the different water source types there are
+# look at the number of records for each location type, average number of people that are served by each water source
+# and calculate the total number of people served by each type of water source in total
+SELECT type_of_water_source, 
+    ROUND(AVG(number_of_people_served)) AS avg_no_people, 
+    SUM(number_of_people_served) AS population_served,
+    COUNT(type_of_water_source) AS num_of_water_source_type   
+FROM water_source
+GROUP BY type_of_water_source
+ORDER BY population_served DESC
+LIMIT 3;
+
+# calculate number of people surveyed
+SELECT
+    SUM(number_of_people_served) AS num_of_people_surveyed 
+FROM water_source;
+
+# percentage number of people served by each water source
+SELECT type_of_water_source,
+    ROUND(
+    (SUM(number_of_people_served) / 
+# A subquery that gets the total number of people in Maji Ndogo
+    (SELECT
+        SUM(number_of_people_served) 
+    FROM water_source))*100, 0) percent_of_people_served
+FROM water_source
+GROUP BY type_of_water_source
+ORDER BY percent_of_people_served DESC;
+
+# total number of people served by each water source.
+# This query gives insight to which water source serve for the most people and 
+# should be given priority.
+SELECT 
+    w.type_of_water_source, 
+    w.total_population_served,
+    RANK() OVER (ORDER BY w.total_population_served) AS rank_by_popation
+FROM(
+    SELECT
+        type_of_water_source,
+        SUM(number_of_people_served) AS total_population_served
+    FROM water_source
+    WHERE type_of_water_source NOT IN('tap_in_home')
+    GROUP BY type_of_water_source) AS w;
+    
+# Using the windows rank function to show areas of priority. The query drills down to each water source.
+# The query gives engineers insight into which water sources to be repaired first (prioritize). For example:
+# which of the rivers, well or shared_taps to be repaired first, this will be the ones that serve more people. */
+SELECT
+    source_id,
+    type_of_water_source,
+    number_of_people_served,
+    RANK() OVER (
+        PARTITION BY type_of_water_source
+        ORDER BY number_of_people_served DESC
+    ) AS priority_rank
+FROM
+    water_source
+WHERE
+    type_of_water_source <> "tap_in_home"
+LIMIT 3;
+
+# How long the survey took
+SELECT 
+	MAX(DATE(time_of_record)) start_date,
+    MIN(DATE(time_of_record)) end_date,
+    DATEDIFF(MAX(DATE(time_of_record)), 
+    MIN(DATE(time_of_record))) survey_period
+FROM
+	visits;
+    
+# Average time in queue to get water
+SELECT
+    ROUND(AVG(time_in_queue),0) avg_time_in_queue
+FROM visits
+#  Excluding time in queue for value = 0
+WHERE
+    NULLIF(time_in_queue, 0);
+
+# Average time in queue per day of the week to get water.
+# The query shows the busiest day to get water in maji ndogo*/
+SELECT
+    DAYNAME(time_of_record) Days_of_the_week,
+    ROUND(AVG(time_in_queue),0) avg_time_in_queue_per_day
+FROM visits
+
+#  Excluding time in queue for value = 0
+WHERE
+    NULLIF(time_in_queue, 0)
+GROUP BY Days_of_the_week
+    
+ORDER BY avg_time_in_queue_per_day DESC;
+SELECT
+    TIME_FORMAT(TIME(time_of_record), "%H:00") Hour_of_the_day,
+    ROUND(AVG(time_in_queue),0) avg_time_per_hour_of_day
+FROM visits
+#  Excluding time in queue for value = 0
+WHERE NULLIF(time_in_queue, 0)
+GROUP BY Hour_of_the_day
+ORDER BY avg_time_per_hour_of_day DESC
+LIMIT 5;
+
+# This query creates a pivot table using case statement on the average time in queue in hours per day of the week.
+# This is done in order to give insights into busiest days of the week and drill down into hours of the day*/
+
+SELECT
+    TIME_FORMAT(TIME(time_of_record), '%H:00') AS hour_of_day,
+ROUND(AVG(
+        CASE WHEN DAYNAME(time_of_record) = 'Sunday' THEN time_in_queue
+    ELSE NULL
+END),0) AS Sunday,
+
+ROUND(AVG(
+    CASE WHEN DAYNAME(time_of_record) = "Monday" THEN time_in_queue
+    ELSE NULL
+END), 0) AS Monday,
+
+ROUND(AVG(
+    CASE WHEN DAYNAME(time_of_record) = "Tuesday" THEN time_in_queue
+    ELSE NULL
+END),0) AS Tuesday,
+
+ROUND(AVG(
+    CASE WHEN DAYNAME(time_of_record) = "Wednesday" THEN time_in_queue
+        ELSE NULL
+END),0) AS Wednesday,
+
+ROUND(AVG(
+    CASE WHEN DAYNAME(time_of_record) = "Thursday" THEN time_in_queue
+        ELSE NULL
+END),0) AS Thursday,
+
+ROUND(AVG(
+    CASE WHEN DAYNAME(time_of_record) = "Friday" THEN time_in_queue
+        ELSE NULL
+END),0) AS Friday,
+
+ROUND(AVG(
+    CASE WHEN DAYNAME(time_of_record) = "Saturday" THEN time_in_queue
+        ELSE NULL
+END),0) AS Saturday
+FROM visits
+WHERE time_in_queue != 0
+GROUP BY hour_of_day
+ORDER BY hour_of_day ASC
+LIMIT 5;
+
+# Phase 2: Data Validation & Integrity Investigation
+# This phase involved exploratory analysis with a focus on data verification, using an auditor's report to detect inconsistencies and uncover potential corruption. You used CTEs, subqueries, and views to find patterns of error and identify suspicious activity.
+# The following query results in 2,698 rows of data being retrieved, 
+# but the auditor_report table only has 1,620 rows. 
+# Analyse the query and select the reason why this discrepancy occurs. 
+SELECT location_id, true_water_source_score
+FROM auditor_report
+LIMIT 3;
+
+# Join the visits table to the auditor_report table. Make sure to grab subjective_quality_score, record_id and location_id
+SELECT
+    auditor_report.location_id AS audit_location,
+    auditor_report.true_water_source_score,
+    visits.location_id AS visit_location,
+    visits.record_id
+FROM
+    auditor_report
+JOIN
+    visits
+    ON auditor_report.location_id = visits.location_id
+LIMIT 5;
+
+# Retrieve the corresponding scores from the water_quality table. JOIN the visits table and the water_quality 
+# table, using the record_id as the connecting key to show subjective_quality_score.
+
+WITH WaterQualityScores AS (
+    SELECT
+        v.record_id,
+        w.subjective_quality_score
+    FROM
+        visits AS v
+    JOIN
+        water_quality AS w
+    ON
+        v.record_id = w.record_id
+)
+
+SELECT
+    a.location_id AS audit_location,
+    a.true_water_source_score,
+    v.location_id AS visit_location,
+    wqs.subjective_quality_score,
+    v.record_id
+FROM
+    auditor_report AS a
+JOIN
+    visits AS v
+    ON a.location_id = v.location_id
+LEFT JOIN
+    WaterQualityScores AS wqs
+    ON v.record_id = wqs.record_id
+LIMIT 5;
+
+SELECT
+    v.record_id AS record_id,
+    a.location_id AS location_id,
+    w.subjective_quality_score AS employee_score,
+    a.true_water_source_score AS auditor_score,
+    ws.type_of_water_source AS survey_source,
+    a.type_of_water_source AS auditor_source
+FROM
+    visits AS v
+JOIN
+    water_source AS ws
+    ON v.source_id = ws.source_id
+JOIN
+    auditor_report AS a
+    ON a.location_id = v.location_id
+LEFT JOIN
+    water_quality AS w
+    ON v.record_id = w.record_id
+WHERE
+    (a.true_water_source_score = w.subjective_quality_score OR v.visit_count = 1)
+    AND a.true_water_source_score <> w.subjective_quality_score
+LIMIT 5;
+
+# remove the columns and JOIN statement for water_sources again.
+SELECT
+    a.location_id AS location_id,
+    v.record_id AS record_id,
+    a.true_water_source_score AS auditor_score,
+    w.subjective_quality_score AS employee_score,
+    v.assigned_employee_id as assigned_employee_id
+FROM
+    auditor_report AS a
+JOIN
+    visits AS v
+    ON a.location_id = v.location_id
+LEFT JOIN
+    water_quality AS w
+    ON v.record_id = w.record_id
+WHERE
+    (a.true_water_source_score = w.subjective_quality_score OR v.visit_count = 1)
+    AND a.true_water_source_score <> w.subjective_quality_score
+LIMIT 5;
+
+# link the incorrect records to the employees who recorded them, fetch their names from the employees table
+# instead of the ID's and name it incorrect_records
+WITH Incorrect_records AS (
+    SELECT
+        a.location_id AS location_id,
+        v.record_id AS record_id,
+        a.true_water_source_score AS auditor_score,
+        w.subjective_quality_score AS employee_score,
+        e.employee_name
+    FROM
+        auditor_report AS a
+    JOIN
+        visits AS v
+        ON a.location_id = v.location_id
+    LEFT JOIN
+        water_quality AS w
+        ON v.record_id = w.record_id
+    LEFT JOIN
+        employee AS e
+        ON e.assigned_employee_id = v.assigned_employee_id
+    WHERE
+        (a.true_water_source_score = w.subjective_quality_score OR v.visit_count = 1)
+        AND a.true_water_source_score <> w.subjective_quality_score
+)
+SELECT *
+FROM Incorrect_records
+LIMIT 5;
+
+# Get a unique list of employees from this table. 
+
+WITH Incorrect_records AS (
+    SELECT
+        a.location_id AS location_id,
+        v.record_id AS record_id,
+        a.true_water_source_score AS auditor_score,
+        w.subjective_quality_score AS employee_score,
+        e.employee_name
+    FROM
+        auditor_report AS a
+    JOIN
+        visits AS v
+        ON a.location_id = v.location_id
+    LEFT JOIN
+        water_quality AS w
+        ON v.record_id = w.record_id
+    LEFT JOIN
+        employee AS e
+        ON e.assigned_employee_id = v.assigned_employee_id
+    WHERE
+        (a.true_water_source_score = w.subjective_quality_score OR v.visit_count = 1)
+        AND a.true_water_source_score <> w.subjective_quality_score
+)
+SELECT DISTINCT employee_name
+FROM Incorrect_records;
+
+# calculate how many mistakes each employee made. 
+# count how many times their name is Incorrect_records list and group them by name
+WITH Incorrect_records AS (
+    SELECT
+        a.location_id AS location_id,
+        v.record_id AS record_id,
+        a.true_water_source_score AS auditor_score,
+        w.subjective_quality_score AS employee_score,
+        e.employee_name
+    FROM
+        auditor_report AS a
+    JOIN
+        visits AS v
+        ON a.location_id = v.location_id
+    LEFT JOIN
+        water_quality AS w
+        ON v.record_id = w.record_id
+    LEFT JOIN
+        employee AS e
+        ON e.assigned_employee_id = v.assigned_employee_id
+    WHERE
+        (a.true_water_source_score = w.subjective_quality_score OR v.visit_count = 1)
+        AND a.true_water_source_score <> w.subjective_quality_score
+)
+SELECT
+    employee_name,
+    COUNT(*) AS number_of_mistakes
+FROM Incorrect_records
+GROUP BY employee_name
+ORDER BY number_of_mistakes DESC;
+
+# First calculate the number of times someone's name comes up. (we just did that in the previousquery). Let's call it error_count.
+# Then, calculate the average number of mistakes employees made. We can do that by taking the average of the previous query's
+# results. 
+
+WITH Incorrect_records AS (
+    SELECT
+        a.location_id AS location_id,
+        v.record_id AS record_id,
+        a.true_water_source_score AS auditor_score,
+        w.subjective_quality_score AS employee_score,
+        e.employee_name
+    FROM
+        auditor_report AS a
+    JOIN
+        visits AS v
+        ON a.location_id = v.location_id
+    LEFT JOIN
+        water_quality AS w
+        ON v.record_id = w.record_id
+    LEFT JOIN
+        employee AS e
+        ON e.assigned_employee_id = v.assigned_employee_id
+    WHERE
+        (a.true_water_source_score = w.subjective_quality_score OR v.visit_count = 1)
+        AND a.true_water_source_score <> w.subjective_quality_score
+),
+ErrorCount AS (
+    SELECT
+        employee_name,
+        COUNT(*) AS number_of_mistakes
+    FROM Incorrect_records
+    GROUP BY employee_name
+)
+
+SELECT
+    AVG(number_of_mistakes) AS avg_error_count_per_empl
+FROM ErrorCount; 
+
+# Query suspect list
+WITH Incorrect_records AS (
+    SELECT
+        a.location_id AS location_id,
+        v.record_id AS record_id,
+        a.true_water_source_score AS auditor_score,
+        w.subjective_quality_score AS employee_score,
+        e.employee_name
+    FROM
+        auditor_report AS a
+    JOIN
+        visits AS v
+        ON a.location_id = v.location_id
+    LEFT JOIN
+        water_quality AS w
+        ON v.record_id = w.record_id
+    LEFT JOIN
+        employee AS e
+        ON e.assigned_employee_id = v.assigned_employee_id
+    WHERE
+        (a.true_water_source_score = w.subjective_quality_score OR v.visit_count = 1)
+        AND a.true_water_source_score <> w.subjective_quality_score
+),
+ErrorCount AS (
+    SELECT
+        employee_name,
+        COUNT(*) AS number_of_mistakes
+    FROM Incorrect_records
+    GROUP BY employee_name
+)
+
+
+SELECT
+       employee_name,
+       number_of_mistakes
+FROM
+       ErrorCount
+WHERE
+       number_of_mistakes > (SELECT AVG(number_of_mistakes) FROM ErrorCount);
+       
+# QUERY to convert the suspect_list to a CTE, plus the suspects and their number of mistakes
+WITH Incorrect_records AS (
+    SELECT
+        a.location_id AS location_id,
+        v.record_id AS record_id,
+        a.true_water_source_score AS auditor_score,
+        w.subjective_quality_score AS employee_score,
+        e.employee_name
+    FROM
+        auditor_report AS a
+    JOIN
+        visits AS v
+        ON a.location_id = v.location_id
+    LEFT JOIN
+        water_quality AS w
+        ON v.record_id = w.record_id
+    LEFT JOIN
+        employee AS e
+        ON e.assigned_employee_id = v.assigned_employee_id
+    WHERE
+        (a.true_water_source_score = w.subjective_quality_score OR v.visit_count = 1)
+        AND a.true_water_source_score <> w.subjective_quality_score
+),
+ErrorCount AS (
+    SELECT
+        employee_name,
+        COUNT(*) AS number_of_mistakes
+    FROM Incorrect_records
+    GROUP BY employee_name
+),
+SuspectList AS (
+    SELECT
+        employee_name,
+        number_of_mistakes
+    FROM
+        ErrorCount
+    WHERE
+        number_of_mistakes > (SELECT AVG(number_of_mistakes) FROM ErrorCount)
+)
+
+SELECT
+    employee_name,
+    number_of_mistakes
+FROM SuspectList;
+
+# QUERY to add the statements column to the Incorrect_records CTE. Then pull up all of the records where the employee_name is in the suspect list
+WITH Incorrect_records AS (
+    SELECT
+        a.location_id AS location_id,
+        v.record_id AS record_id,
+        a.true_water_source_score AS auditor_score,
+        w.subjective_quality_score AS employee_score,
+        a.statements,  -- Add statements column
+        e.employee_name
+    FROM
+        auditor_report AS a
+    JOIN
+        visits AS v
+        ON a.location_id = v.location_id
+    LEFT JOIN
+        water_quality AS w
+        ON v.record_id = w.record_id
+    LEFT JOIN
+        employee AS e
+        ON e.assigned_employee_id = v.assigned_employee_id
+    WHERE
+        (a.true_water_source_score = w.subjective_quality_score OR v.visit_count = 1)
+        AND a.true_water_source_score <> w.subjective_quality_score
+),
+ErrorCount AS (
+    SELECT
+        employee_name,
+        COUNT(*) AS number_of_mistakes
+    FROM Incorrect_records
+    GROUP BY employee_name
+),
+SuspectList AS (
+    SELECT
+        employee_name,
+        number_of_mistakes
+    FROM
+        ErrorCount
+    WHERE
+        number_of_mistakes > (SELECT AVG(number_of_mistakes) FROM ErrorCount)
+)
+
+SELECT
+    i.employee_name,
+    i.location_id,
+    i.statements
+FROM
+    Incorrect_records AS i
+WHERE
+    i.employee_name IN (SELECT employee_name FROM SuspectList)
+LIMIT 5;
+
+# QUERY to filter the word cash
+WITH Incorrect_records AS (
+    SELECT
+        a.location_id AS location_id,
+        v.record_id AS record_id,
+        a.true_water_source_score AS auditor_score,
+        w.subjective_quality_score AS employee_score,
+        a.statements,
+        e.employee_name
+    FROM
+        auditor_report AS a
+    JOIN
+        visits AS v
+        ON a.location_id = v.location_id
+    LEFT JOIN
+        water_quality AS w
+        ON v.record_id = w.record_id
+    LEFT JOIN
+        employee AS e
+        ON e.assigned_employee_id = v.assigned_employee_id
+    WHERE
+        (a.true_water_source_score = w.subjective_quality_score OR v.visit_count = 1)
+        AND a.true_water_source_score <> w.subjective_quality_score
+        AND a.statements LIKE '%cash%'  -- Filter for "cash" in statements
+),
+ErrorCount AS (
+    SELECT
+        employee_name,
+        COUNT(*) AS number_of_mistakes
+    FROM Incorrect_records
+    GROUP BY employee_name
+),
+SuspectList AS (
+    SELECT
+        employee_name,
+        number_of_mistakes
+    FROM
+        ErrorCount
+    WHERE
+        number_of_mistakes > (SELECT AVG(number_of_mistakes) FROM ErrorCount)
+)
+
+SELECT
+    i.employee_name,
+    i.location_id,
+    i.statements
+FROM
+    Incorrect_records AS i
+WHERE
+    i.employee_name IN (SELECT employee_name FROM SuspectList)
+LIMIT 5;
+
+# QUERY for incorrect records CTE
+WITH Incorrect_records AS (
+SELECT
+    a.location_id AS audit_location,
+    a.true_water_source_score as auditor_score,
+    v.record_id,
+    wq.subjective_quality_score as surveyor_score,
+    v.assigned_employee_id,
+    e.employee_name
+FROM
+    auditor_report as a
+JOIN
+    Visits as V
+    on a.location_id = v.location_id
+JOIN
+    Water_quality as wq
+    ON wq.record_id = v.record_id
+JOIN
+    employee as e
+    ON e.assigned_employee_id = v.assigned_employee_id
+WHERE
+    wq.subjective_quality_score - a.true_water_source_score != 0
+    and v.visit_count = 1
+    )
+    SELECT * 
+    FROM Incorrect_records
+	LIMIT 5;
+
+# QUERY for employees with above average mistakes
+WITH Incorrect_records AS (
+SELECT
+    a.location_id AS audit_location,
+    a.true_water_source_score as auditor_score,
+    v.record_id,
+    wq.subjective_quality_score as surveyor_score,
+    v.assigned_employee_id,
+    e.employee_name
+FROM
+    auditor_report as a
+JOIN
+    Visits as V
+    on a.location_id = v.location_id
+JOIN
+    Water_quality as wq
+    ON wq.record_id = v.record_id
+JOIN
+    employee as e
+    ON e.assigned_employee_id = v.assigned_employee_id
+WHERE
+wq.subjective_quality_score - a.true_water_source_score != 0
+    and v.visit_count = 1
+    ), 
+    Error_Count AS (
+    SELECT DISTINCT
+        employee_name,
+        COUNT(*) as number_of_mistakes
+    FROM 
+        Incorrect_records
+    GROUP BY
+        employee_name
+        ),
+        
+Avg_error_count_per_employee AS (
+SELECT
+        AVG(number_of_mistakes) as avg_error_count_per_empl
+    FROM
+        error_count
+        )
+        
+SELECT
+    employee_name,
+    number_of_mistakes
+FROM
+    error_count
+WHERE
+    number_of_mistakes > (SELECT
+                            AVG(number_of_mistakes) as avg_error_count_per_empl
+                        FROM
+                            error_count);
+                            
+# Query Susp_list
+WITH error_count AS ( 
+                SELECT
+                    employee_name,
+                    COUNT(employee_name) AS number_of_mistakes
+                FROM Incorrect_records
+
+GROUP BY
+    employee_name),
+suspect_list AS (
+            SELECT
+                employee_name,
+                number_of_mistakes
+            FROM
+                error_count
+            WHERE
+                number_of_mistakes > (SELECT 
+                                        AVG(number_of_mistakes) 
+                                    FROM 
+                                        error_count))
+# This query filters all of the records where the "corrupt" employees gathered data.
+SELECT  
+employee_name,
+    location_id,
+    statements
+FROM
+    Incorrect_records
+WHERE
+    employee_name in (
+                        SELECT
+                       employee_name 
+                    FROM 
+                       suspect_list)
+AND 
+   statements LIKE "%Suspicion colored villagers%"; 
+   
+# Consider the provided SQL query. What does it do?
+
+SELECT
+    auditorRep.location_id,
+    visitsTbl.record_id,
+    auditorRep.true_water_source_score AS auditor_score,
+    wq.subjective_quality_score AS employee_score,
+    wq.subjective_quality_score - auditorRep.true_water_source_score  AS score_diff
+FROM 
+    auditor_report AS auditorRep
+JOIN 
+    visits AS visitsTbl
+ON 
+    auditorRep.location_id = visitsTbl.location_id
+JOIN 
+    water_quality AS wq
+ON 
+   visitsTbl.record_id = wq.record_id
+WHERE
+    (wq.subjective_quality_score - auditorRep.true_water_source_score) > 9;
+
+# ANSWER: The query retrieves the auditor records where employees assigned very high scores to very poor water sources.
