@@ -8,11 +8,11 @@ Analyzed water source quality, community access, and employee performance. Lever
 ### Phase 2: Corruption Detection
 Cross-referenced internal records with an auditor’s report to detect inconsistencies. Used CTEs, subqueries, and views to:
 
-Identify above-average data entry errors,
+- Identify above-average data entry errors,
 
-Flag potentially corrupt employees,
+- Flag potentially corrupt employees,
 
-Link irregularities to specific surveyed locations.
+- Link irregularities to specific surveyed locations.
 
 ## 🗂️ Data Sources
 The primary dataset used for this analysis is the ["md_water_services"](https://drive.google.com/file/d/1nXeoG9nnSs4oiVvft3K9VFUfRiYzvTJF/view?usp=sharing) data, containing detailed information about each water source, employee performance and water quality and tools.
